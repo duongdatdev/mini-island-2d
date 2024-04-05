@@ -7,6 +7,7 @@ public class MiniIsland extends JFrame {
     public MiniIsland() {
         GamePanel gamePanel = new GamePanel();
 
+        gamePanel.start();
         this.add(gamePanel);
 
         init();
