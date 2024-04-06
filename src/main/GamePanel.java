@@ -1,19 +1,22 @@
 package main;
 
+import entities.Player;
 import input.KeyHandler;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class GamePanel extends JPanel implements Runnable {
+    //Screen settings
     private final int originalTileSize = 16;
     private final int scale = 3;
     private final int tileSize = originalTileSize * scale;
-
     private final int maxTilesX = 16;
     private final int maxTilesY = 16;
     private final int screenWidth = maxTilesX * tileSize;
     private final int screenHeight = maxTilesY * tileSize;
+
+    //Player settings
     private int playerX = 0;
     private int playerY = 0;
     private int playerSpeed = 5;
@@ -26,10 +29,13 @@ public class GamePanel extends JPanel implements Runnable {
     Thread gameThread;
 
     KeyHandler keyHandler;
+    Player player;
 
     public GamePanel() {
         keyHandler = new KeyHandler();
         this.addKeyListener(keyHandler);
+
+        player = new Player(keyHandler);
 
         init();
     }
@@ -43,7 +49,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true);
     }
 
-    public void start() {
+    public synchronized void start() {
         gameThread = new Thread(this);
         gameThread.start();
     }
@@ -77,27 +83,27 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        if (keyHandler.isUp()) {
-            playerY -= playerSpeed;
-        }
-        if (keyHandler.isDown()) {
-            playerY += playerSpeed;
-        }
-        if (keyHandler.isLeft()) {
-            playerX -= playerSpeed;
-        }
-        if (keyHandler.isRight()) {
-            playerX += playerSpeed;
-        }
+        player.update();
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setColor(Color.WHITE);
-        g2d.fillRect(playerX, playerY, tileSize, tileSize);
+        player.draw(g2d, tileSize);
         g2d.setColor(Color.RED);
         g2d.drawString("FPS: " + fps, 10, 20);
+    }
+
+    public int getFps() {
+        return fps;
+    }
+
+    public void setFps(int fps) {
+        this.fps = fps;
+    }
+
+    public int getTileSize() {
+        return tileSize;
     }
 }
