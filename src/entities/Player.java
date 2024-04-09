@@ -2,19 +2,33 @@ package entities;
 
 import imageRender.ImageHandler;
 import input.KeyHandler;
+import main.GamePanel;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class Player extends Entity {
+    private int screenX;
+    private int screenY;
+    private int scale = 1;
     private KeyHandler keyHandler;
     private int id;
     private String direction = "DOWN";
     private int spriteIndex = 0;
     private int countFrames = 0;
+    private BufferedImage[] standingImages;
+    private GamePanel gamePanel;
 
-    public Player(KeyHandler keyHandler) {
+    public Player(GamePanel gamePanel,KeyHandler keyHandler) {
         this.keyHandler = keyHandler;
+        this.gamePanel = gamePanel;
+
+        hitBox = new Rectangle();
+        hitBox.width = gamePanel.getTileSize() - 16;
+        hitBox.height = gamePanel.getTileSize() - 16;
+        hitBox.x = 8;
+        hitBox.y = 16;
+
         setDefaultPosition();
         setDefaultSpeed();
         loadAssets();
@@ -25,11 +39,14 @@ public class Player extends Entity {
         downImages = ImageHandler.loadAssets("/player/Character_Down.png", 32, 32);
         leftImages = ImageHandler.loadAssets("/player/Character_Left.png", 32, 32);
         rightImages = ImageHandler.loadAssets("/player/Character_Right.png", 32, 32);
+        standingImages = ImageHandler.loadAssets("/player/Character_Stand.png", 32, 32);
     }
 
     private void setDefaultPosition() {
-        x = 0;
-        y = 0;
+        screenX = gamePanel.getScreenWidth() / 2 - gamePanel.getTileSize()*scale / 2;
+        screenY = gamePanel.getScreenHeight() / 2 - gamePanel.getTileSize()*scale / 2;
+        worldX = 1000;
+        worldY = 1000;
     }
 
     private void setDefaultSpeed() {
@@ -37,25 +54,29 @@ public class Player extends Entity {
     }
 
     public void update() {
+
         if (isMove()) {
+
             if (keyHandler.isUp()) {
                 direction = "UP";
-                y -= speed;
+                worldY -= speed;
             }
             if (keyHandler.isDown()) {
                 direction = "DOWN";
-                y += speed;
+                worldY += speed;
             }
             if (keyHandler.isLeft()) {
                 direction = "LEFT";
-                x -= speed;
+                worldX -= speed;
             }
             if (keyHandler.isRight()) {
                 direction = "RIGHT";
-                x += speed;
+                worldX += speed;
             }
-            countFrames++;
+        } else {
+            direction = "STAND";
         }
+        countFrames++;
         if (countFrames > 11) {
             spriteIndex++;
             if (spriteIndex > 3) {
@@ -125,8 +146,22 @@ public class Player extends Entity {
                     playerImage = rightImages[3];
                 }
                 break;
+            case "STAND":
+                if (spriteIndex == 0) {
+                    playerImage = standingImages[0];
+                }
+                if (spriteIndex == 1) {
+                    playerImage = standingImages[1];
+                }
+                if (spriteIndex == 2) {
+                    playerImage = standingImages[2];
+                }
+                if (spriteIndex == 3) {
+                    playerImage = standingImages[3];
+                }
+                break;
         }
-        g2d.drawImage(playerImage, x, y, tileSize * 2, tileSize * 2, null);
+        g2d.drawImage(playerImage, screenX, screenY, tileSize*scale, tileSize*scale, null);
     }
 
     public boolean isMove() {
@@ -141,24 +176,40 @@ public class Player extends Entity {
         return id;
     }
 
-    @Override
-    public int getX() {
-        return super.getX();
+    public int getScreenX() {
+        return screenX;
+    }
+
+    public void setScreenX(int screenX) {
+        this.screenX = screenX;
+    }
+
+    public int getScreenY() {
+        return screenY;
+    }
+
+    public void setScreenY(int screenY) {
+        this.screenY = screenY;
     }
 
     @Override
-    public void setX(int x) {
-        super.setX(x);
+    public int getWorldX() {
+        return super.getWorldX();
     }
 
     @Override
-    public int getY() {
-        return super.getY();
+    public void setWorldX(int worldX) {
+        super.setWorldX(worldX);
     }
 
     @Override
-    public void setY(int y) {
-        super.setY(y);
+    public int getWorldY() {
+        return super.getWorldY();
+    }
+
+    @Override
+    public void setWorldY(int worldY) {
+        super.setWorldY(worldY);
     }
 
     @Override

@@ -17,8 +17,8 @@ public class ImageHandler {
                 for (int col = 0; col < cols; col++) {
                     icons[row * cols + col] = tileMap.getSubimage(col * tileWidth, row * tileHeight, tileWidth, tileHeight);
                 }
+
             }
-            System.out.println(icons.length);
             return icons;
         } catch (Exception e) {
             e.printStackTrace();

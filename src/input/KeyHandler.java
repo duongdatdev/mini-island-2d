@@ -6,20 +6,11 @@ import java.awt.event.KeyListener;
 public class KeyHandler implements KeyListener {
     private boolean up, down, left, right;
 
-    public boolean isUp() {
-        return up;
-    }
-
-    public boolean isDown() {
-        return down;
-    }
-
-    public boolean isLeft() {
-        return left;
-    }
-
-    public boolean isRight() {
-        return right;
+    public KeyHandler() {
+        up = false;
+        down = false;
+        left = false;
+        right = false;
     }
 
     @Override
@@ -71,5 +62,21 @@ public class KeyHandler implements KeyListener {
                 right = false;
                 break;
         }
+    }
+
+    public boolean isUp() {
+        return up;
+    }
+
+    public boolean isDown() {
+        return down;
+    }
+
+    public boolean isLeft() {
+        return left;
+    }
+
+    public boolean isRight() {
+        return right;
     }
 }
