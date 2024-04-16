@@ -1,13 +1,13 @@
 package main;
 
-import entities.Player;
+import objects.entities.Player;
 import input.KeyHandler;
 import maps.Map;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class GamePanel extends JPanel implements Runnable {
+public class GameScene extends JPanel implements Runnable {
     //Screen settings
     private final int originalTileSize = 16;
     private final int scale = 3;
@@ -28,13 +28,15 @@ public class GamePanel extends JPanel implements Runnable {
     KeyHandler keyHandler;
     Player player;
     private Map map;
+    private MiniIsland mainFrame;
 
-    public GamePanel() {
+    public GameScene(MiniIsland mainFrame) {
         keyHandler = new KeyHandler();
         this.addKeyListener(keyHandler);
 
         player = new Player(this, keyHandler);
         map = new Map(this);
+        this.mainFrame = mainFrame;
 
         init();
     }
@@ -55,7 +57,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
-        double drawInterval = 1000000000 / 60.0;
+        double drawInterval = 1000000000 / 90.0;
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
@@ -74,6 +76,7 @@ public class GamePanel extends JPanel implements Runnable {
             }
             if (timer >= 1000000000) {
                 System.out.println("FPS: " + drawCount);
+                mainFrame.setTitle("Mini Island - FPS: " + drawCount);
                 fps = drawCount;
                 drawCount = 0;
                 timer = 0;
@@ -90,7 +93,7 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         map.draw(g2d, tileSize);
-        player.draw(g2d, tileSize);
+        player.render(g2d, tileSize);
         g2d.setColor(Color.RED);
         g2d.drawString("FPS: " + fps, 10, 20);
     }

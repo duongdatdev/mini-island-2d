@@ -1,8 +1,8 @@
-package entities;
+package objects.entities;
 
 import imageRender.ImageHandler;
 import input.KeyHandler;
-import main.GamePanel;
+import main.GameScene;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -17,15 +17,19 @@ public class Player extends Entity {
     private int spriteIndex = 0;
     private int countFrames = 0;
     private BufferedImage[] standingImages;
-    private GamePanel gamePanel;
+    private GameScene gameScene;
+    private String username;
 
-    public Player(GamePanel gamePanel,KeyHandler keyHandler) {
+    public Player(GameScene gameScene, KeyHandler keyHandler) {
+        super(gameScene);
         this.keyHandler = keyHandler;
-        this.gamePanel = gamePanel;
+        this.gameScene = gameScene;
+
+        username = "Player1";
 
         hitBox = new Rectangle();
-        hitBox.width = gamePanel.getTileSize() - 16;
-        hitBox.height = gamePanel.getTileSize() - 16;
+        hitBox.width = gameScene.getTileSize() - 16;
+        hitBox.height = gameScene.getTileSize() - 16;
         hitBox.x = 8;
         hitBox.y = 16;
 
@@ -43,8 +47,8 @@ public class Player extends Entity {
     }
 
     private void setDefaultPosition() {
-        screenX = gamePanel.getScreenWidth() / 2 - gamePanel.getTileSize()*scale / 2;
-        screenY = gamePanel.getScreenHeight() / 2 - gamePanel.getTileSize()*scale / 2;
+        screenX = gameScene.getScreenWidth() / 2 - gameScene.getTileSize() * scale / 2;
+        screenY = gameScene.getScreenHeight() / 2 - gameScene.getTileSize() * scale / 2;
         worldX = 1000;
         worldY = 1000;
     }
@@ -87,7 +91,7 @@ public class Player extends Entity {
 
     }
 
-    public void draw(Graphics2D g2d, int tileSize) {
+    public void render(Graphics2D g2d, int tileSize) {
         BufferedImage playerImage = null;
         switch (direction) {
             case "UP":
@@ -161,7 +165,7 @@ public class Player extends Entity {
                 }
                 break;
         }
-        g2d.drawImage(playerImage, screenX, screenY, tileSize*scale, tileSize*scale, null);
+        g2d.drawImage(playerImage, screenX, screenY, tileSize * scale, tileSize * scale, null);
     }
 
     public boolean isMove() {
@@ -192,34 +196,36 @@ public class Player extends Entity {
         this.screenY = screenY;
     }
 
-    @Override
     public int getWorldX() {
-        return super.getWorldX();
+        return super.worldX;
     }
 
-    @Override
     public void setWorldX(int worldX) {
-        super.setWorldX(worldX);
+        this.worldX = worldX;
     }
 
-    @Override
     public int getWorldY() {
-        return super.getWorldY();
+        return worldY;
     }
 
-    @Override
     public void setWorldY(int worldY) {
-        super.setWorldY(worldY);
+        this.worldY = worldY;
     }
 
-    @Override
     public int getSpeed() {
-        return super.getSpeed();
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
     }
 
     @Override
-    public void setSpeed(int speed) {
-        super.setSpeed(speed);
+    public void update(float delta) {
+
     }
 
+    @Override
+    public void render(Graphics graphics) {
+
+    }
 }

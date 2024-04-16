@@ -6,18 +6,18 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MiniIsland extends JFrame {
-    private final GamePanel gamePanel;
+    private final GameScene gameScene;
     private CardLayout cardLayout;
     private SignInPanel signInPanel;
 
     public MiniIsland() {
-        gamePanel = new GamePanel();
+        gameScene = new GameScene(this);
         signInPanel = new SignInPanel();
 
         cardLayout = new CardLayout();
 
         init();
-        gamePanel.start();
+        gameScene.start();
         cardLayout.show(this.getContentPane(), "GamePanel");
 //        cardLayout.show(this.getContentPane(), "SignInPanel");
         this.pack();
@@ -30,7 +30,7 @@ public class MiniIsland extends JFrame {
         this.pack();
 //        this.setResizable(false);
         this.setLayout(cardLayout);
-        this.add(gamePanel, "GamePanel");
+        this.add(gameScene, "GamePanel");
         this.add(signInPanel, "SignInPanel");
         this.setVisible(true);
 
