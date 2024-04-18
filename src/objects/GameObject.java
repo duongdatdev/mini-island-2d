@@ -11,16 +11,6 @@ public abstract class GameObject {
     public GameScene gameScene;
 
     /**
-     * Abstract class for almost every in-game object.
-     *
-     * @param gameScene in-game scene
-     */
-    public GameObject(GameScene gameScene){
-        this.gameScene = gameScene;
-    }
-
-
-    /**
      * Updates game logic of the game object.
      *
      * @param delta how much seconds passed from the update

@@ -2,6 +2,7 @@ package objects.entities;
 
 import imageRender.ImageHandler;
 import input.KeyHandler;
+import interfaces.Collidable;
 import main.GameScene;
 
 import java.awt.*;
@@ -21,7 +22,6 @@ public class Player extends Entity {
     private String username;
 
     public Player(GameScene gameScene, KeyHandler keyHandler) {
-        super(gameScene);
         this.keyHandler = keyHandler;
         this.gameScene = gameScene;
 
@@ -37,6 +37,16 @@ public class Player extends Entity {
         setDefaultSpeed();
         loadAssets();
     }
+    public Player(int x, int y, int dir,int id) {
+        this.id = id;
+        this.worldX = x;
+        this.worldY = y;
+        this.direction = "DOWN";
+
+//        setDefaultPosition();
+//        setDefaultSpeed();
+        loadAssets();
+    }
 
     public void loadAssets() {
         upImages = ImageHandler.loadAssets("/player/Character_Up.png", 32, 32);
@@ -50,7 +60,7 @@ public class Player extends Entity {
         screenX = gameScene.getScreenWidth() / 2 - gameScene.getTileSize() * scale / 2;
         screenY = gameScene.getScreenHeight() / 2 - gameScene.getTileSize() * scale / 2;
         worldX = 1000;
-        worldY = 1000;
+        worldY = 2000;
     }
 
     private void setDefaultSpeed() {
@@ -80,6 +90,16 @@ public class Player extends Entity {
         } else {
             direction = "STAND";
         }
+
+
+    }
+
+    public BufferedImage getStandingImage() {
+        return standingImages[0];
+    }
+
+    public void render(Graphics2D g2d, int tileSize) {
+        BufferedImage playerImage = null;
         countFrames++;
         if (countFrames > 11) {
             spriteIndex++;
@@ -88,11 +108,6 @@ public class Player extends Entity {
             }
             countFrames = 0;
         }
-
-    }
-
-    public void render(Graphics2D g2d, int tileSize) {
-        BufferedImage playerImage = null;
         switch (direction) {
             case "UP":
                 if (spriteIndex == 0) {

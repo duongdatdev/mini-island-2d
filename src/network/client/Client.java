@@ -24,10 +24,10 @@ public class Client {
         protocol = new Protocol();
     }
 
-    public void register(String Ip, int port, int posX, int posY) throws IOException {
-        this.serverPort = port;
-        this.hostName = Ip;
-        clientSocket = new Socket(Ip, port);
+    public void register(int posX, int posY) throws IOException {
+        this.serverPort = 11111;
+        this.hostName = "localhost";
+        clientSocket = new Socket(hostName, serverPort);
         writer = new DataOutputStream(clientSocket.getOutputStream());
 
         writer.writeUTF(protocol.RegisterPacket(posX, posY));
@@ -55,8 +55,7 @@ public class Client {
     }
 
     public String getIP() {
-        return hostName;
-    }
+        return hostName;    }
 
     public static Client getGameClient() {
         if (client == null)

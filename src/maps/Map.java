@@ -23,7 +23,6 @@ public class Map {
         loadMap("/Maps/Map_tiles.png");
         readMap();
     }
-
     private void loadMap(String mapPath) {
         tileSet = ImageHandler.loadAssets(mapPath, width, height);
         titles = new Tile[tileSet.length];

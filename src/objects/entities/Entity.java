@@ -6,7 +6,7 @@ import objects.GameObject;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public abstract class Entity extends GameObject {
+public abstract class Entity extends GameObject{
     protected int worldX;
     protected int worldY;
     protected int speed;
@@ -20,8 +20,5 @@ public abstract class Entity extends GameObject {
      *
      * @param gameScene in-game scene
      */
-    public Entity(GameScene gameScene) {
-        super(gameScene);
-    }
 
 }

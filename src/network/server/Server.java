@@ -94,6 +94,7 @@ public class Server extends Thread {
                         ex.printStackTrace();
                     }
                 }
+                System.out.println("Update" + x + "," + y + "-" + dir + "|" + id);
 
             } else if (sentence.startsWith("Shot")) {
                 try {
