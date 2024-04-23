@@ -11,6 +11,7 @@ public class PlayerMP {
     private int x, y;
     private int id;
     private int direction;
+    private String username;
 
     private Client client;
 
@@ -32,13 +33,24 @@ public class PlayerMP {
         client = Client.getGameClient();
     }
 
+    public PlayerMP(String username, int x, int y, int direction, int id) {
+        this.x = x;
+        this.y = y;
+        this.id = id;
+        this.direction = direction;
+        this.username = username;
+        this.player = new Player(x, y, direction, id);
+
+        client = Client.getGameClient();
+    }
+
     public void update() {
-        if(player.getWorldX() != x || player.getWorldY() != y || player.getId() != id) {
+        if (player.getWorldX() != x || player.getWorldY() != y || player.getId() != id) {
             player.setId(id);
             x = player.getWorldX();
             y = player.getWorldY();
         }
-        if (player.isMove()){
+        if (player.isMove()) {
             x = player.getWorldX();
             y = player.getWorldY();
             direction = 1;
@@ -46,8 +58,20 @@ public class PlayerMP {
         }
     }
 
-    public void render(Graphics2D g2d,int tileSize) {
+    public void render(Graphics2D g2d, int tileSize) {
         player.render(g2d, tileSize);
+    }
+
+    public void renderMP(Graphics2D g2d, int tileSize) {
+
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public int getX() {

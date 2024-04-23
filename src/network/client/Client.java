@@ -12,39 +12,35 @@ public class Client {
      */
 
     private Socket clientSocket;
-    private String hostName;
-    private int serverPort;
+    private String hostName = "localhost";
+    private int serverPort = 11111;
     private DataInputStream reader;
     private DataOutputStream writer;
     private Protocol protocol;
 
     private static Client client;
-    private Client() throws IOException
-    {
-        protocol=new Protocol();
+
+    private Client() throws IOException {
+        protocol = new Protocol();
+        clientSocket = new Socket(hostName, serverPort);
+        writer = new DataOutputStream(clientSocket.getOutputStream());
     }
 
-    public void register(String Ip,int port,int posX,int posY) throws IOException
-    {
-        this.serverPort=port;
-        this.hostName=Ip;
-        clientSocket=new Socket(Ip,port);
-        writer=new DataOutputStream(clientSocket.getOutputStream());
+    public void register(int posX, int posY) throws IOException {
 
-        writer.writeUTF(protocol.RegisterPacket(posX,posY));
+
+//        writer.writeUTF(protocol.RegisterPacket(posX, posY));
 
     }
 
-    public void sendToServer(String message)
-    {
-        if(message.equals("exit"))
+    public void sendToServer(String message) {
+        if (message.equals("exit"))
             System.exit(0);
-        else
-        {
+        else {
             try {
-                Socket s=new Socket(hostName,serverPort);
-                System.out.println(message);
-                writer=new DataOutputStream(s.getOutputStream());
+                Socket s = new Socket(hostName, serverPort);
+                System.out.println(message + " " + hostName + " " + serverPort);
+                writer = new DataOutputStream(s.getOutputStream());
                 writer.writeUTF(message);
             } catch (IOException ex) {
 
@@ -53,27 +49,41 @@ public class Client {
 
     }
 
-    public Socket getSocket()
-    {
+    public DataOutputStream getWriter() {
+        return writer;
+    }
+
+    public void setWriter(DataOutputStream writer) {
+        this.writer = writer;
+    }
+
+    public Protocol getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(Protocol protocol) {
+        this.protocol = protocol;
+    }
+
+    public Socket getSocket() {
         return clientSocket;
     }
-    public String getIP()
-    {
-        return hostName;
-    }
-    public static Client getGameClient()
-    {
-        if(client==null)
+
+    public String getIP() {
+        return hostName;    }
+
+    public static Client getGameClient() {
+        if (client == null)
 
             try {
-                client=new Client();
+                client = new Client();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         return client;
     }
-    public void closeAll()
-    {
+
+    public void closeAll() {
         try {
             reader.close();
             writer.close();

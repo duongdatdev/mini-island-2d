@@ -180,6 +180,7 @@ public class Player extends Entity {
                 }
                 break;
         }
+        g2d.drawString("Player " + id, screenX, screenY - 10);
         g2d.drawImage(playerImage, screenX, screenY, tileSize * scale, tileSize * scale, null);
     }
 

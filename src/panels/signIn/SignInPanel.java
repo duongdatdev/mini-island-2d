@@ -65,7 +65,7 @@ public class SignInPanel extends JPanel {
         frame.setSize(300, 200);
 
         SignInPanel panel = new SignInPanel();
-        SignInControl control = new SignInControl(new SignInModel(), panel);
+//        SignInControl control = new SignInControl(SignInModel.getInstance(), panel);
 
         frame.setVisible(true);
     }
