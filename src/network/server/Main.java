@@ -1,10 +1,18 @@
 package network.server;
 
 import java.io.IOException;
-/**
- * This class is the entry point for the server application.
+/*
+ * Main.java
  *
- * @author DuongDat
+ * Created on 21 „«—”, 2008, 02:19 „
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
+ */
+
+/**
+ *
+ * @author Mohamed Talaat Saad
  */
 public class Main {
     

@@ -38,18 +38,10 @@ public class Server extends Thread {
     public void run() {
         Socket clientSocket = null;
         while (running) {
-            try {
-                clientSocket = serverSocket.accept();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
             String sentence = "";
             try {
+                clientSocket = serverSocket.accept();
                 reader = new DataInputStream(clientSocket.getInputStream());
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            try {
                 sentence = reader.readUTF();
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -94,7 +86,6 @@ public class Server extends Thread {
                         ex.printStackTrace();
                     }
                 }
-                System.out.println("Update" + x + "," + y + "-" + dir + "|" + id);
 
             } else if (sentence.startsWith("Shot")) {
                 try {

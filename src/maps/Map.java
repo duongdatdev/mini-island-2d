@@ -1,7 +1,7 @@
 package maps;
 
 import imageRender.ImageHandler;
-import main.GameScene;
+import main.GamePanel;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -13,16 +13,17 @@ public class Map {
     private int height = 32;
     private BufferedImage[] tileSet;
     private int[][] mapNumbers;
-    private GameScene gameScene;
+    private GamePanel gamePanel;
     private int mapTileCol = 52;
     private int mapTileRow = 40;
 
-    public Map(GameScene gameScene) {
-        this.gameScene = gameScene;
+    public Map(GamePanel gamePanel) {
+        this.gamePanel = gamePanel;
         mapNumbers = new int[mapTileCol][mapTileRow];
         loadMap("/Maps/Map_tiles.png");
         readMap();
     }
+
     private void loadMap(String mapPath) {
         tileSet = ImageHandler.loadAssets(mapPath, width, height);
         titles = new Tile[tileSet.length];
@@ -42,13 +43,13 @@ public class Map {
             int worldX = worldCol * tileSize;
             int worldY = worldRow * tileSize;
 
-            int screenX = worldX - gameScene.getPlayer().getWorldX() + gameScene.getPlayer().getScreenX();
-            int screenY = worldY - gameScene.getPlayer().getWorldY() + gameScene.getPlayer().getScreenY();
+            int screenX = worldX - gamePanel.getPlayer().getWorldX() + gamePanel.getPlayer().getScreenX();
+            int screenY = worldY - gamePanel.getPlayer().getWorldY() + gamePanel.getPlayer().getScreenY();
 
-            if (worldX > gameScene.getPlayer().getWorldX() - gameScene.getPlayer().getScreenX() - tileSize*2
-            && worldX < gameScene.getPlayer().getWorldX() + gameScene.getPlayer().getScreenX() + tileSize*2
-            && worldY > gameScene.getPlayer().getWorldY() - gameScene.getPlayer().getScreenY() - tileSize*2
-            && worldY < gameScene.getPlayer().getWorldY() + gameScene.getPlayer().getScreenY()+ tileSize*2) {
+            if (worldX > gamePanel.getPlayer().getWorldX() - gamePanel.getPlayer().getScreenX() - tileSize*2
+            && worldX < gamePanel.getPlayer().getWorldX() + gamePanel.getPlayer().getScreenX() + tileSize*2
+            && worldY > gamePanel.getPlayer().getWorldY() - gamePanel.getPlayer().getScreenY() - tileSize*2
+            && worldY < gamePanel.getPlayer().getWorldY() + gamePanel.getPlayer().getScreenY()+ tileSize*2) {
                 g2d.drawImage(titles[tileNum].getImage(), screenX, screenY, tileSize, tileSize, null);
             }
 

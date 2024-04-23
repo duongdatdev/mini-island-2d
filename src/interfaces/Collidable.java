@@ -7,28 +7,28 @@ public interface Collidable {
      *
      * @return x coordinate of upper left corner
      */
-    int getCollidableX();
+    public int getCollidableX();
 
     /**
      * Gets y coordinate of upper left corner of collidable.
      *
      * @return y coordinate of upper left corner
      */
-    int getCollidableY();
+    public int getCollidableY();
 
     /**
      * Gets width of collidable.
      *
      * @return width of collidable
      */
-    int getCollidableWidth();
+    public int getCollidableWidth();
 
     /**
      * Gets height of collidable.
      *
      * @return height of collidable
      */
-    int getCollidableHeight();
+    public int getCollidableHeight();
 
     /**
      * Checks if object is in collision with other.
@@ -36,7 +36,7 @@ public interface Collidable {
      * @param obj collidable for collision test
      * @return whether are objects in collision
      */
-    default boolean isOverLappingWith(Collidable obj){
+    public default boolean isOverLappingWith(Collidable obj){
         return getCollidableX() < obj.getCollidableX() + obj.getCollidableWidth()
                 && getCollidableX() + getCollidableWidth() > obj.getCollidableX()
                 && getCollidableY() < obj.getCollidableY() + obj.getCollidableHeight()
