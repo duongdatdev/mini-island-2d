@@ -16,7 +16,7 @@ import java.awt.event.WindowListener;
 import java.io.IOException;
 
 public class MiniIsland extends JFrame {
-    private final GameScene gameScene;
+    private GameScene gameScene;
     private CardLayout cardLayout;
     private SignInPanel signInPanel;
     private SignInControl signInControl;
@@ -26,7 +26,6 @@ public class MiniIsland extends JFrame {
     private PlayerMP clientPlayer;
 
     public MiniIsland() {
-        gameScene = new GameScene(true);
         signInPanel = new SignInPanel();
 
         signInModel = SignInModel.getInstance();
@@ -51,6 +50,8 @@ public class MiniIsland extends JFrame {
     }
 
     public void startGame() {
+        gameScene = new GameScene(true);
+        this.add(gameScene, "GamePanel");
         actionRegister();
         changeToGamePanel();
         gameScene.start();
@@ -65,11 +66,15 @@ public class MiniIsland extends JFrame {
     }
     public void changeToGamePanel() {
         cardLayout.show(this.getContentPane(), "GamePanel");
+        this.pack();
     }
     private void showDialogExit() {
         int response = JOptionPane.showConfirmDialog(this, "Are you sure you want to exit ?", "2D Multiplayer Game!", JOptionPane.YES_NO_OPTION);
+
         if (response == JOptionPane.YES_OPTION) {
-            Client.getGameClient().sendToServer(new Protocol().ExitMessagePacket(clientPlayer.getID()));
+            if (clientPlayer != null) {
+                Client.getGameClient().sendToServer(new Protocol().ExitMessagePacket(clientPlayer.getID()));
+            }
             System.exit(0);
         } else {
             setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -100,7 +105,7 @@ public class MiniIsland extends JFrame {
         this.pack();
 //        this.setResizable(false);
         this.setLayout(cardLayout);
-        this.add(gameScene, "GamePanel");
+
         this.add(signInPanel, "SignInPanel");
         this.setVisible(true);
 

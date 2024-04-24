@@ -23,27 +23,23 @@ public class PlayerMP {
         this.client = Client.getGameClient();
     }
 
-    public PlayerMP(int x, int y, int direction, int id) {
-        this.x = x;
-        this.y = y;
-        this.id = id;
-        this.direction = direction;
-        this.player = new Player(x, y, direction, id);
-
-        client = Client.getGameClient();
-    }
-
     public PlayerMP(String username, int x, int y, int direction, int id) {
         this.x = x;
         this.y = y;
         this.id = id;
         this.direction = direction;
         this.username = username;
-        this.player = new Player(x, y, direction, id);
+        this.player = new Player(username, x, y, direction, id);
 
         client = Client.getGameClient();
     }
 
+    //Counter for the number of times the player has moved
+    int count = 1;
+
+    /**
+     * Updates the player's position and direction
+     */
     public void update() {
         if (player.getWorldX() != x || player.getWorldY() != y || player.getId() != id) {
             player.setId(id);
@@ -53,17 +49,40 @@ public class PlayerMP {
         if (player.isMove()) {
             x = player.getWorldX();
             y = player.getWorldY();
-            direction = 1;
+            switch (player.getDirection()) {
+                case "DOWN" -> direction = 1;
+                case "UP" -> direction = 2;
+                case "LEFT" -> direction = 3;
+                case "RIGHT" -> direction = 4;
+            }
             client.sendToServer(new Protocol().UpdatePacket(x, y, id, direction));
+
+            count = 1;
+        }
+        else {
+            if (count == 1){
+                if (player.getDirection().equals("STAND")) {
+                    direction = 0;
+                }
+                client.sendToServer(new Protocol().UpdatePacket(x, y, id, direction));
+                count = 0;
+            }
+        }
+
+        player.setWorldX(x);
+        player.setWorldY(y);
+        player.setId(id);
+        switch (direction) {
+            case 1 -> player.setDirection("DOWN");
+            case 2 -> player.setDirection("UP");
+            case 3 -> player.setDirection("LEFT");
+            case 4 -> player.setDirection("RIGHT");
+            default -> player.setDirection("STAND");
         }
     }
-
     public void render(Graphics2D g2d, int tileSize) {
+        g2d.drawString(username, player.getScreenX(), player.getScreenY() - 10);
         player.render(g2d, tileSize);
-    }
-
-    public void renderMP(Graphics2D g2d, int tileSize) {
-
     }
 
     public String getUsername() {
@@ -104,10 +123,23 @@ public class PlayerMP {
     }
 
     public int getDirection() {
+        switch (player.getDirection()) {
+            case "DOWN" -> direction = 1;
+            case "UP" -> direction = 2;
+            case "LEFT" -> direction = 3;
+            case "RIGHT" -> direction = 4;
+        }
         return direction;
     }
 
     public void setDirection(int direction) {
+        switch (direction) {
+            case 1 -> player.setDirection("DOWN");
+            case 2 -> player.setDirection("UP");
+            case 3 -> player.setDirection("LEFT");
+            case 4 -> player.setDirection("RIGHT");
+            default -> player.setDirection("STAND");
+        }
         this.direction = direction;
     }
 

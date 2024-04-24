@@ -18,7 +18,6 @@ public class Protocol {
     }
 
     public String UpdatePacket(int x, int y, int id, int dir) {
-        System.out.println("Update" + x + "," + y + "-" + dir + "|" + id);
         message = "Update" + x + "," + y + "-" + dir + "|" + id;
         return message;
     }

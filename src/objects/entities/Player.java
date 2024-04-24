@@ -2,7 +2,6 @@ package objects.entities;
 
 import imageRender.ImageHandler;
 import input.KeyHandler;
-import interfaces.Collidable;
 import main.GameScene;
 
 import java.awt.*;
@@ -37,7 +36,8 @@ public class Player extends Entity {
         setDefaultSpeed();
         loadAssets();
     }
-    public Player(int x, int y, int dir,int id) {
+    public Player(String username,int x, int y, int dir,int id) {
+        this.username = username;
         this.id = id;
         this.worldX = x;
         this.worldY = y;
@@ -60,13 +60,19 @@ public class Player extends Entity {
         screenX = gameScene.getScreenWidth() / 2 - gameScene.getTileSize() * scale / 2;
         screenY = gameScene.getScreenHeight() / 2 - gameScene.getTileSize() * scale / 2;
         worldX = 1000;
-        worldY = 2000;
+        worldY = 1000;
     }
 
     private void setDefaultSpeed() {
-        speed = 5;
+        speed = 3;
     }
 
+    //Counter for the number of times the player has moved
+    int count = 1;
+
+    /**
+     * Updates the player's position and direction
+     */
     public void update() {
 
         if (isMove()) {
@@ -87,8 +93,12 @@ public class Player extends Entity {
                 direction = "RIGHT";
                 worldX += speed;
             }
+            count = 1;
         } else {
-            direction = "STAND";
+            if(count == 1) {
+                direction = "STAND";
+            }
+            count = 0;
         }
 
 
@@ -99,6 +109,9 @@ public class Player extends Entity {
     }
 
     public void render(Graphics2D g2d, int tileSize) {
+        g2d.drawImage(currentSprite(), screenX, screenY, tileSize * scale, tileSize * scale, null);
+    }
+    public BufferedImage currentSprite() {
         BufferedImage playerImage = null;
         countFrames++;
         if (countFrames > 11) {
@@ -180,8 +193,7 @@ public class Player extends Entity {
                 }
                 break;
         }
-        g2d.drawString("Player " + id, screenX, screenY - 10);
-        g2d.drawImage(playerImage, screenX, screenY, tileSize * scale, tileSize * scale, null);
+        return playerImage;
     }
 
     public boolean isMove() {
@@ -190,6 +202,14 @@ public class Player extends Entity {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
     }
 
     public int getId() {

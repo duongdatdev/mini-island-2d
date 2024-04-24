@@ -135,8 +135,8 @@ public class GameScene extends JPanel implements Runnable {
                             && worldX < player.getWorldX() + player.getScreenX() + tileSize*2
                             && worldY > player.getWorldY() - player.getScreenY() - tileSize*2
                             && worldY < player.getWorldY() + player.getScreenY()+ tileSize*2) {
-                        g2d.drawImage(players.get(i).getPlayer().getStandingImage(), screenX, screenY, tileSize, tileSize, null);
-                        g2d.drawString("Player " + players.get(i).getID(), screenX, screenY - 10);
+                        g2d.drawImage(players.get(i).getPlayer().currentSprite(), screenX, screenY, tileSize, tileSize, null);
+                        g2d.drawString(players.get(i).getUsername(), screenX, screenY - 10);
                     }
                 }
                 i++;
