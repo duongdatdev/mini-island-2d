@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 public class Tile {
     private BufferedImage image;
     private boolean collision;
+    private TileType type;
 
 
 
@@ -22,5 +23,13 @@ public class Tile {
 
     public void setCollision(boolean collision) {
         this.collision = collision;
+    }
+
+    public TileType getType() {
+        return type;
+    }
+
+    public void setType(TileType type) {
+        this.type = type;
     }
 }

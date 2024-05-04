@@ -112,9 +112,12 @@ public class ClientRecivingThread extends Thread {
 
                 if (id != clientPlayer.getID())
                     boardPanel.registerNewPlayer(new PlayerMP(username, x, y, dir, id));
+
                 System.out.println("New Client ID= " + id);
                 System.out.println("New Client Username= " + username);
+
                 SignInModel.getInstance().setSignedIn(true);
+
             } else if (sentence.startsWith("Update")) {
                 int pos1 = sentence.indexOf(',');
                 int pos2 = sentence.indexOf('-');
@@ -132,6 +135,7 @@ public class ClientRecivingThread extends Thread {
                 }
 
             } else if (sentence.startsWith("Shot")) {
+
                 int id = Integer.parseInt(sentence.substring(4));
 
                 if (id != clientPlayer.getID()) {
@@ -148,7 +152,6 @@ public class ClientRecivingThread extends Thread {
 //                        clientGUI.setVisibility(false);
 //                        clientGUI.dispose();
 
-                        new ClientGUI();
                     } else {
                         System.exit(0);
                     }

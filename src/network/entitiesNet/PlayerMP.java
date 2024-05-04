@@ -46,7 +46,7 @@ public class PlayerMP {
             x = player.getWorldX();
             y = player.getWorldY();
         }
-        if (player.isMove()) {
+        if (player.isMove()  && !player.isCollision()) {
             x = player.getWorldX();
             y = player.getWorldY();
             switch (player.getDirection()) {

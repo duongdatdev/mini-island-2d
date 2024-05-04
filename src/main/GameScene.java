@@ -1,5 +1,6 @@
 package main;
 
+import collision.Collision;
 import network.entitiesNet.PlayerMP;
 import objects.entities.Player;
 import input.KeyHandler;
@@ -38,9 +39,16 @@ public class GameScene extends JPanel implements Runnable {
     //Game settings
     private boolean isRunning;
 
+    //Handler for the collision
+    private Collision collision;
+
+    //Handler for the game scene
+
     public GameScene(boolean isRunning){
         keyHandler = new KeyHandler();
         this.addKeyListener(keyHandler);
+
+        collision = new Collision(this);
 
         this.isRunning = isRunning;
 
@@ -206,5 +214,21 @@ public class GameScene extends JPanel implements Runnable {
 
     public void setRunning(boolean running) {
         isRunning = running;
+    }
+
+    public Map getMap() {
+        return map;
+    }
+
+    public void setMap(Map map) {
+        this.map = map;
+    }
+
+    public Collision getCollisionChecker() {
+        return collision;
+    }
+
+    public void setCollisionChecker(Collision collision) {
+        this.collision = collision;
     }
 }

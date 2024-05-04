@@ -8,11 +8,11 @@ public class SignUpControl {
         this.model = model;
         this.view = view;
         view.getSignUpButton().addActionListener(e -> {
-//            model.setUsername(view.getUsernameField().getText());
-//            model.setEmail(view.getEmailField().getText());
-//            model.setPassword(new String(view.getPasswordField().getPassword()));
-//            model.setConfirmPassword(new String(view.getConfirmPasswordField().getPassword()));
-//            model.signUp();
+            model.setUsername(view.getUsernameField().getText());
+            model.setEmail(view.getEmailField().getText());
+            model.setPassword(new String(view.getPasswordField().getPassword()));
+            model.setConfirmPassword(new String(view.getConfirmPasswordField().getPassword()));
+            model.signUp();
         });
         view.getBackButton().addActionListener(e -> {
             view.setVisible(false);

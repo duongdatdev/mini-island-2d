@@ -12,13 +12,13 @@ public class Protocol {
 
     }
 
-    public String RegisterPacket(int x, int y) {
-        message = "Hello" + x + "," + y;
+    public String UpdatePacket(int x, int y, int id, int dir) {
+        message = "Update" + x + "," + y + "-" + dir + "|" + id;
         return message;
     }
 
-    public String UpdatePacket(int x, int y, int id, int dir) {
-        message = "Update" + x + "," + y + "-" + dir + "|" + id;
+    public String RegisterPacket(String username, String password, String email) {
+        message = "Register" + username + "," + password + "-" + email;
         return message;
     }
 

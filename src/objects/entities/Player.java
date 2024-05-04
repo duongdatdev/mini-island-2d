@@ -13,7 +13,6 @@ public class Player extends Entity {
     private int scale = 1;
     private KeyHandler keyHandler;
     private int id;
-    private String direction = "DOWN";
     private int spriteIndex = 0;
     private int countFrames = 0;
     private BufferedImage[] standingImages;
@@ -23,8 +22,6 @@ public class Player extends Entity {
     public Player(GameScene gameScene, KeyHandler keyHandler) {
         this.keyHandler = keyHandler;
         this.gameScene = gameScene;
-
-        username = "Player1";
 
         hitBox = new Rectangle();
         hitBox.width = gameScene.getTileSize() - 16;
@@ -79,19 +76,15 @@ public class Player extends Entity {
 
             if (keyHandler.isUp()) {
                 direction = "UP";
-                worldY -= speed;
             }
             if (keyHandler.isDown()) {
                 direction = "DOWN";
-                worldY += speed;
             }
             if (keyHandler.isLeft()) {
                 direction = "LEFT";
-                worldX -= speed;
             }
             if (keyHandler.isRight()) {
                 direction = "RIGHT";
-                worldX += speed;
             }
             count = 1;
         } else {
@@ -99,6 +92,25 @@ public class Player extends Entity {
                 direction = "STAND";
             }
             count = 0;
+        }
+
+        collision = false;
+
+        gameScene.getCollisionChecker().checkTile(this);
+
+        if (!collision) {
+            if (keyHandler.isUp()) {
+                worldY -= speed;
+            }
+            if (keyHandler.isDown()) {
+                worldY += speed;
+            }
+            if (keyHandler.isLeft()) {
+                worldX -= speed;
+            }
+            if (keyHandler.isRight()) {
+                worldX += speed;
+            }
         }
 
 
@@ -232,16 +244,8 @@ public class Player extends Entity {
         this.screenY = screenY;
     }
 
-    public int getWorldX() {
-        return super.worldX;
-    }
-
     public void setWorldX(int worldX) {
         this.worldX = worldX;
-    }
-
-    public int getWorldY() {
-        return worldY;
     }
 
     public void setWorldY(int worldY) {

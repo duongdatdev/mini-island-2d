@@ -8,27 +8,39 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 
 public class Map {
-    private Tile[] titles;
+    private Tile[] tiles;
     private int width = 32;
     private int height = 32;
     private BufferedImage[] tileSet;
-    private int[][] mapNumbers;
+    private int[][] mapTileNum;
     private GameScene gameScene;
     private int mapTileCol = 52;
     private int mapTileRow = 40;
 
     public Map(GameScene gameScene) {
         this.gameScene = gameScene;
-        mapNumbers = new int[mapTileCol][mapTileRow];
+        mapTileNum = new int[mapTileCol][mapTileRow];
         loadMap("/Maps/Map_tiles.png");
         readMap();
     }
     private void loadMap(String mapPath) {
         tileSet = ImageHandler.loadAssets(mapPath, width, height);
-        titles = new Tile[tileSet.length];
+        tiles = new Tile[tileSet.length];
         for (int i = 0; i < tileSet.length; i++) {
-            titles[i] = new Tile();
-            titles[i].setImage(tileSet[i]);
+
+            tiles[i] = new Tile();
+
+            tiles[i].setImage(tileSet[i]);
+
+            if(i == 16){
+                tiles[i].setType(TileType.Grass);
+            }
+            else if(i == 36){
+                tiles[i].setType(TileType.Water);
+            }
+            else if(i == 0){
+                tiles[i].setType(TileType.Wall);
+            }
         }
     }
 
@@ -37,7 +49,7 @@ public class Map {
         int worldRow = 0;
 
         while (worldCol < mapTileCol&& worldRow < mapTileRow) {
-            int tileNum = mapNumbers[worldCol][worldRow];
+            int tileNum = mapTileNum[worldCol][worldRow];
 
             int worldX = worldCol * tileSize;
             int worldY = worldRow * tileSize;
@@ -49,7 +61,7 @@ public class Map {
             && worldX < gameScene.getPlayer().getWorldX() + gameScene.getPlayer().getScreenX() + tileSize*2
             && worldY > gameScene.getPlayer().getWorldY() - gameScene.getPlayer().getScreenY() - tileSize*2
             && worldY < gameScene.getPlayer().getWorldY() + gameScene.getPlayer().getScreenY()+ tileSize*2) {
-                g2d.drawImage(titles[tileNum].getImage(), screenX, screenY, tileSize, tileSize, null);
+                g2d.drawImage(tiles[tileNum].getImage(), screenX, screenY, tileSize, tileSize, null);
             }
 
             worldCol++;
@@ -72,8 +84,8 @@ public class Map {
                 String line = br.readLine();
                 while (col < mapTileCol) {
                     String[] numbers = line.split(" ");
-                    mapNumbers[col][row] = Integer.parseInt(numbers[col]);
-                    System.out.print(mapNumbers[col][row] + " ");
+                    mapTileNum[col][row] = Integer.parseInt(numbers[col]);
+                    System.out.print(mapTileNum[col][row] + " ");
                     col++;
                 }
                 if (col == mapTileCol) {
@@ -91,5 +103,69 @@ public class Map {
                 e.printStackTrace();
             }
         }
+    }
+
+    public Tile[] getTiles() {
+        return tiles;
+    }
+
+    public void setTiles(Tile[] tiles) {
+        this.tiles = tiles;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public BufferedImage[] getTileSet() {
+        return tileSet;
+    }
+
+    public void setTileSet(BufferedImage[] tileSet) {
+        this.tileSet = tileSet;
+    }
+
+    public int[][] getMapTileNum() {
+        return mapTileNum;
+    }
+
+    public void setMapTileNum(int[][] mapTileNum) {
+        this.mapTileNum = mapTileNum;
+    }
+
+    public GameScene getGameScene() {
+        return gameScene;
+    }
+
+    public void setGameScene(GameScene gameScene) {
+        this.gameScene = gameScene;
+    }
+
+    public int getMapTileCol() {
+        return mapTileCol;
+    }
+
+    public void setMapTileCol(int mapTileCol) {
+        this.mapTileCol = mapTileCol;
+    }
+
+    public int getMapTileRow() {
+        return mapTileRow;
+    }
+
+    public void setMapTileRow(int mapTileRow) {
+        this.mapTileRow = mapTileRow;
     }
 }
