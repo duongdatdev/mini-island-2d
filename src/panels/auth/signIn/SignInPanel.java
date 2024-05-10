@@ -1,6 +1,7 @@
-package panels.signIn;
+package panels.auth.signIn;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class SignInPanel extends JPanel {
     private JTextField usernameField;
@@ -9,21 +10,26 @@ public class SignInPanel extends JPanel {
     private JButton signUpButton;
 
     public SignInPanel() {
-        usernameField = new JTextField();
-        passwordField = new JPasswordField();
+        JLabel usernameLabel = new JLabel("Username:");
+        JLabel passwordLabel = new JLabel("Password:");
+        usernameField = new JTextField(20);
+        passwordField = new JPasswordField(20);
         signInButton = new JButton("Sign In");
         signUpButton = new JButton("Sign Up");
 
-        init();
+        init(usernameLabel, passwordLabel);
     }
 
-    private void init() {
+    private void init(JLabel usernameLabel, JLabel passwordLabel) {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        this.add(usernameLabel);
         this.add(usernameField);
+        this.add(Box.createRigidArea(new Dimension(0, 5)));
+        this.add(passwordLabel);
         this.add(passwordField);
+        this.add(Box.createRigidArea(new Dimension(0, 5)));
         this.add(signInButton);
-        this.add(signUpButton);
-
+        this.add(Box.createRigidArea(new Dimension(0, 5)));
     }
 
     public JTextField getUsernameField() {

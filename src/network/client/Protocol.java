@@ -12,8 +12,13 @@ public class Protocol {
 
     }
 
-    public String UpdatePacket(int x, int y, int id, int dir) {
-        message = "Update" + x + "," + y + "-" + dir + "|" + id;
+    public String UpdatePacket(String username,int x, int y, int id, int dir) {
+        message = "Update,"+ username+ "," + x + "," + y + "," + dir + "," + id;
+        return message;
+    }
+
+    public String chatPacket(String message) {
+        message = "Chat" + message ;
         return message;
     }
 
@@ -22,8 +27,13 @@ public class Protocol {
         return message;
     }
 
-    public String LoginPacket(String username, String password,int x,int y) {
-        message = "Login" + username + "," + password + "-" + x + "|" + y;
+    public String LoginPacket(String username, String password) {
+        message = "Login" + username + "," + password;
+        return message;
+    }
+
+    public String HelloPacket(String username) {
+        message = "Hello" + username;
         return message;
     }
 

@@ -2,12 +2,13 @@ package network.client;
 
 import main.GameScene;
 import network.entitiesNet.PlayerMP;
-import panels.signIn.SignInModel;
+import panels.auth.signIn.SignInModel;
 
 import javax.swing.*;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.sql.Struct;
 
 /**
  * This class is responsible for receiving messages from the server and updating the game state accordingly.
@@ -54,6 +55,7 @@ public class ClientRecivingThread extends Thread {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+            System.out.println("Received: " + sentence);
             if (sentence.startsWith("ID")) {
                 int pos1 = sentence.indexOf(',');
 
@@ -66,38 +68,6 @@ public class ClientRecivingThread extends Thread {
                 System.out.println("My ID= " + id);
                 System.out.println("My Username= " + clientPlayer.getUsername());
 
-            } else if (sentence.startsWith("Login")) {
-                int pos1 = sentence.indexOf(',');
-                String status = sentence.substring(5, pos1);
-                if (status.equals("Success")) {
-                    int pos2 = sentence.indexOf('|');
-                    int id = Integer.parseInt(sentence.substring(pos1 + 1, pos2));
-
-                    String username = sentence.substring(pos2 + 1, sentence.length());
-
-                    SignInModel.getInstance().setId(id);
-                    SignInModel.getInstance().setUsername(username);
-
-                    System.out.println("Login Success");
-                } else {
-                    System.out.println("Login Failed");
-                }
-                SignInModel.getInstance().setSignedIn(false);
-            } else if (sentence.startsWith("Register")) {
-
-                int pos1 = sentence.indexOf(',');
-                String status = sentence.substring(8, pos1);
-
-                if (status.equals("Success")) {
-                    int posResult = sentence.indexOf('|');
-
-                    JOptionPane.showMessageDialog(null, sentence.substring(pos1 + 1, posResult),"Success", JOptionPane.INFORMATION_MESSAGE);
-                    System.out.println("Register Success");
-                } else {
-                    System.out.println("Register Failed");
-                    JOptionPane.showMessageDialog(null, sentence.substring(pos1 + 1, sentence.length()),"Error", JOptionPane.ERROR_MESSAGE);
-                }
-                SignInModel.getInstance().setSignedIn(false);
             } else if (sentence.startsWith("NewClient")) {
                 int pos1 = sentence.indexOf(',');
                 int pos2 = sentence.indexOf('-');
@@ -116,17 +86,14 @@ public class ClientRecivingThread extends Thread {
                 System.out.println("New Client ID= " + id);
                 System.out.println("New Client Username= " + username);
 
-                SignInModel.getInstance().setSignedIn(true);
-
             } else if (sentence.startsWith("Update")) {
-                int pos1 = sentence.indexOf(',');
-                int pos2 = sentence.indexOf('-');
-                int pos3 = sentence.indexOf('|');
+                String[] parts = sentence.split(",");
 
-                int x = Integer.parseInt(sentence.substring(6, pos1));
-                int y = Integer.parseInt(sentence.substring(pos1 + 1, pos2));
-                int dir = Integer.parseInt(sentence.substring(pos2 + 1, pos3));
-                int id = Integer.parseInt(sentence.substring(pos3 + 1, sentence.length()));
+                String username = parts[1];
+                int x = Integer.parseInt(parts[2]);
+                int y = Integer.parseInt(parts[3]);
+                int dir = Integer.parseInt(parts[4]);
+                int id = Integer.parseInt(parts[5]);
 
                 if (id != clientPlayer.getID()) {
                     boardPanel.getPlayer(id).setX(x);

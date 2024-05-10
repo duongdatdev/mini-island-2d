@@ -1,4 +1,4 @@
-package panels.signUp;
+package panels.auth.signUp;
 
 import javax.swing.*;
 

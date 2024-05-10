@@ -5,9 +5,12 @@ import network.entitiesNet.PlayerMP;
 import objects.entities.Player;
 import input.KeyHandler;
 import maps.Map;
+import panels.ChatPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class GameScene extends JPanel implements Runnable {
@@ -21,7 +24,7 @@ public class GameScene extends JPanel implements Runnable {
     private final int screenHeight = maxTilesY * tileSize;
 
     //FPS
-    private final int FPS = 60;
+    private final double FPS = 60.0;
     private int fps = 0;
     private int frameCount = 0;
     private long startTime = System.nanoTime();
@@ -44,6 +47,11 @@ public class GameScene extends JPanel implements Runnable {
 
     //Handler for the game scene
 
+    //Chat
+    private JButton chatButton;
+//    private JPanel chatPanel;
+    private ChatPanel chatPanel;
+
     public GameScene(boolean isRunning){
         keyHandler = new KeyHandler();
         this.addKeyListener(keyHandler);
@@ -65,7 +73,29 @@ public class GameScene extends JPanel implements Runnable {
         }
         repaint();
 
+
         init();
+
+        //Chat
+        chatPanel = new ChatPanel(this);
+
+        chatPanel.setBackground(Color.WHITE);
+        chatPanel.setPreferredSize(new Dimension(200, 100));
+
+        JButton chatButton = new JButton("Chat");
+        chatButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chatPanel.setVisible(!chatPanel.isVisible());
+                requestFocusInWindow();
+            }
+        });
+
+        setLayout(new BorderLayout());
+
+        add(chatPanel, BorderLayout.SOUTH);
+
+        add(chatButton, BorderLayout.NORTH);
     }
 
     private void init() {
@@ -84,31 +114,44 @@ public class GameScene extends JPanel implements Runnable {
 
     @Override
     public void run() {
-        double drawInterval = 1000000000 / 60.0;
-        double delta = 0;
+
+        double drawInterval = 1000000000 / FPS;
+        double delta = 0.0;
         long lastTime = System.nanoTime();
         long currentTime;
+
         long timer = 0;
         int drawCount = 0;
+
         System.out.println("Game started");
         while (gameThread != null) {
             currentTime = System.nanoTime();
+
             delta += (currentTime - lastTime) / drawInterval;
+
             timer += currentTime - lastTime;
+
             lastTime = currentTime;
-            if (delta >= 1) {
-                update();
-                repaint();
+
+            if (delta >= 1.0) {
+                updateAndRepaint();
                 drawCount++;
                 delta--;
             }
             if (timer >= 1000000000) {
-                System.out.println("FPS: " + drawCount);
                 fps = drawCount;
                 drawCount = 0;
                 timer = 0;
             }
         }
+    }
+
+    private synchronized void updateAndRepaint() {
+        // Update game logic
+        update();
+
+        // Repaint the scene
+        repaint();
     }
 
     public void update() {

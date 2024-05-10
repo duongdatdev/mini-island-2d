@@ -1,4 +1,4 @@
-package panels.signUp;
+package panels.auth.signUp;
 
 import network.client.Client;
 import network.client.Protocol;

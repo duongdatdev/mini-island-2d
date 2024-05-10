@@ -1,4 +1,4 @@
-package panels.signUp;
+package panels.auth.signUp;
 
 public class SignUpControl {
     private SignUpModel model;

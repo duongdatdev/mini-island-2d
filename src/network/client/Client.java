@@ -1,5 +1,6 @@
 package network.client;
 
+import javax.swing.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -22,7 +23,12 @@ public class Client {
 
     private Client() throws IOException {
         protocol = new Protocol();
-        clientSocket = new Socket(hostName, serverPort);
+        try {
+            clientSocket = new Socket(hostName, serverPort);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Server is not running");
+            System.exit(0);
+        }
         writer = new DataOutputStream(clientSocket.getOutputStream());
     }
 
@@ -39,11 +45,9 @@ public class Client {
         else {
             try {
                 Socket s = new Socket(hostName, serverPort);
-                System.out.println(message + " " + hostName + " " + serverPort);
                 writer = new DataOutputStream(s.getOutputStream());
                 writer.writeUTF(message);
             } catch (IOException ex) {
-
             }
         }
 

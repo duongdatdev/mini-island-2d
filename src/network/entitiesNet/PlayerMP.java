@@ -55,7 +55,7 @@ public class PlayerMP {
                 case "LEFT" -> direction = 3;
                 case "RIGHT" -> direction = 4;
             }
-            client.sendToServer(new Protocol().UpdatePacket(x, y, id, direction));
+            updatePlayerInServer();
 
             count = 1;
         }
@@ -64,7 +64,8 @@ public class PlayerMP {
                 if (player.getDirection().equals("STAND")) {
                     direction = 0;
                 }
-                client.sendToServer(new Protocol().UpdatePacket(x, y, id, direction));
+                updatePlayerInServer();
+
                 count = 0;
             }
         }
@@ -79,6 +80,9 @@ public class PlayerMP {
             case 4 -> player.setDirection("RIGHT");
             default -> player.setDirection("STAND");
         }
+    }
+    public void updatePlayerInServer(){
+        client.sendToServer(new Protocol().UpdatePacket(username,x, y, id, direction));
     }
     public void render(Graphics2D g2d, int tileSize) {
         g2d.drawString(username, player.getScreenX(), player.getScreenY() - 10);

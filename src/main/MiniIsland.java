@@ -4,16 +4,14 @@ import network.client.Client;
 import network.client.ClientRecivingThread;
 import network.client.Protocol;
 import network.entitiesNet.PlayerMP;
-import panels.signIn.SignInControl;
-import panels.signIn.SignInModel;
-import panels.signIn.SignInPanel;
+import panels.auth.signIn.SignInControl;
+import panels.auth.signIn.SignInModel;
+import panels.auth.signIn.SignInPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.io.IOException;
 
 public class MiniIsland extends JFrame {
     private GameScene gameScene;
@@ -33,6 +31,7 @@ public class MiniIsland extends JFrame {
         signInControl = new SignInControl(this, signInModel, signInPanel);
 
         client = Client.getGameClient();
+
         cardLayout = new CardLayout();
 
         init();
@@ -52,13 +51,19 @@ public class MiniIsland extends JFrame {
     public void startGame() {
         gameScene = new GameScene(true);
         this.add(gameScene, "GamePanel");
+
         actionRegister();
-        changeToGamePanel();
+
         gameScene.start();
         gameScene.setFocusable(true);
         gameScene.requestFocusInWindow();
+
         clientPlayer = gameScene.getPlayerMP();
         new ClientRecivingThread(client.getSocket(), clientPlayer, gameScene).start();
+
+        client.sendToServer(new Protocol().HelloPacket(signInModel.getUsername()));
+
+        changeToGamePanel();
     }
 
     public void changePanel(String panelName) {
@@ -67,6 +72,7 @@ public class MiniIsland extends JFrame {
     public void changeToGamePanel() {
         cardLayout.show(this.getContentPane(), "GamePanel");
         this.pack();
+        this.setLocationRelativeTo(null);
     }
     private void showDialogExit() {
         int response = JOptionPane.showConfirmDialog(this, "Are you sure you want to exit ?", "2D Multiplayer Game!", JOptionPane.YES_NO_OPTION);

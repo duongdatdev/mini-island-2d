@@ -81,5 +81,6 @@ public class Collision {
     private void handlerCollisionWater(Entity entity, int tileNum1, int tileNum2){
         entity.setWorldX(1000);
         entity.setWorldY(1000);
+        gameScene.getPlayerMP().updatePlayerInServer();
     }
 }
