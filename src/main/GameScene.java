@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class GameScene extends JPanel implements Runnable {
     //Screen settings
@@ -68,11 +69,9 @@ public class GameScene extends JPanel implements Runnable {
 
         map = new Map(this);
 
-        for (int i = 0; i < 100; i++) {
-            players.add(null);
-        }
-        repaint();
+//        players.add(null);
 
+        repaint();
 
         init();
 
@@ -173,11 +172,11 @@ public class GameScene extends JPanel implements Runnable {
 
 //            player.render(g2d, tileSize);
 
-            int i = 1;
-            while (i < players.size()) {
-                if (players.get(i) != null) {
-                    int worldX = players.get(i).getX();
-                    int worldY = players.get(i).getY();
+            for (PlayerMP playerMP : players) {
+
+                if (playerMP != null) {
+                    int worldX = playerMP.getX();
+                    int worldY = playerMP.getY();
 
                     int screenX = worldX - player.getWorldX() + player.getScreenX();
                     int screenY = worldY - player.getWorldY() + player.getScreenY();
@@ -186,11 +185,10 @@ public class GameScene extends JPanel implements Runnable {
                             && worldX < player.getWorldX() + player.getScreenX() + tileSize*2
                             && worldY > player.getWorldY() - player.getScreenY() - tileSize*2
                             && worldY < player.getWorldY() + player.getScreenY()+ tileSize*2) {
-                        g2d.drawImage(players.get(i).getPlayer().currentSprite(), screenX, screenY, tileSize, tileSize, null);
-                        g2d.drawString(players.get(i).getUsername(), screenX, screenY - 10);
+                        g2d.drawImage(playerMP.getPlayer().currentSprite(), screenX, screenY, tileSize, tileSize, null);
+                        g2d.drawString(playerMP.getUsername(), screenX, screenY - 10);
                     }
                 }
-                i++;
             }
 
         }
@@ -198,17 +196,16 @@ public class GameScene extends JPanel implements Runnable {
 
     public void registerNewPlayer(PlayerMP newPlayer)
     {
-        players.set(newPlayer.getID(), newPlayer);
+        players.add(newPlayer);
     }
-    public void removePlayer(int PlayerID)
+    public void removePlayer(String username)
     {
         for (PlayerMP mp : players) {
-            if (mp.getUsername() != null) {
+            if (!Objects.equals(mp.getUsername(), username)) {
                 System.out.println("Player " + mp.getUsername() + " has left the game");
                 players.remove(mp);
             }
         }
-        players.set(PlayerID,null);
     }
     public PlayerMP getPlayer(String username)
     {

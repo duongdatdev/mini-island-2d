@@ -47,8 +47,8 @@ public class Protocol {
         return message;
     }
 
-    public String ExitMessagePacket(int id) {
-        message = "Exit" + id;
+    public String ExitMessagePacket(String username) {
+        message = "Exit" + username;
         return message;
     }
 }

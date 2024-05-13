@@ -126,7 +126,7 @@ public class MiniIsland extends JFrame {
 
         if (response == JOptionPane.YES_OPTION) {
             if (clientPlayer != null) {
-                Client.getGameClient().sendToServer(new Protocol().ExitMessagePacket(clientPlayer.getID()));
+                Client.getGameClient().sendToServer(new Protocol().ExitMessagePacket(clientPlayer.getUsername()));
             }
             System.exit(0);
         } else {

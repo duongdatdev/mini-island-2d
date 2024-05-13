@@ -35,7 +35,7 @@ public class ClientRecivingThread extends Thread {
      * @param boardPanel   the game scene
      */
 
-    public ClientRecivingThread(Socket socket,PlayerMP clientPlayer, GameScene boardPanel) {
+    public ClientRecivingThread(Socket socket, PlayerMP clientPlayer, GameScene boardPanel) {
 
 
         this.clientPlayer = clientPlayer;
@@ -57,6 +57,7 @@ public class ClientRecivingThread extends Thread {
             String sentence = "";
             try {
                 sentence = reader.readUTF();
+                System.out.println("Received: " + sentence);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -100,9 +101,15 @@ public class ClientRecivingThread extends Thread {
                 int id = Integer.parseInt(parts[5]);
 
                 if (!username.equals(clientPlayer.getUsername())) {
-                    boardPanel.getPlayer(username).setX(x);
-                    boardPanel.getPlayer(username).setY(y);
-                    boardPanel.getPlayer(username).setDirection(dir);
+                    PlayerMP player = boardPanel.getPlayer(username);
+
+                    if (player != null) {
+                        player.setX(x);
+                        player.setY(y);
+                        player.setDirection(dir);
+                    } else {
+                        System.out.println("Player with username " + username + " not found.");
+                    }
                 }
 
             } else if (sentence.startsWith("Shot")) {
@@ -127,13 +134,15 @@ public class ClientRecivingThread extends Thread {
                         System.exit(0);
                     }
                 } else {
-                    boardPanel.removePlayer(id);
+                    String username = boardPanel.getPlayerMP().getUsername();
+
+                    boardPanel.removePlayer(username);
                 }
             } else if (sentence.startsWith("Exit")) {
-                int id = Integer.parseInt(sentence.substring(4));
+                String username = sentence.substring(4);
 
-                if (id != clientPlayer.getID()) {
-                    boardPanel.removePlayer(id);
+                if (!username.equals(clientPlayer.getUsername())) {
+                    boardPanel.removePlayer(username);
                 }
             }
 
