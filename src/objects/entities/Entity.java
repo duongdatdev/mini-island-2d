@@ -10,7 +10,7 @@ public abstract class Entity extends GameObject {
     protected int worldX;
     protected int worldY;
     protected int speed;
-    public BufferedImage[] upImages, downImages, leftImages, rightImages;
+    public BufferedImage[][] upImages, downImages, leftImages, rightImages;
     public String direction = "STAND";
     protected Rectangle hitBox;
     protected boolean collision = false;

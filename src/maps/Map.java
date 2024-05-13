@@ -24,7 +24,7 @@ public class Map {
         readMap();
     }
     private void loadMap(String mapPath) {
-        tileSet = ImageHandler.loadAssets(mapPath, width, height);
+        tileSet = ImageHandler.loadAssets2(mapPath, width, height);
         tiles = new Tile[tileSet.length];
         for (int i = 0; i < tileSet.length; i++) {
 
@@ -69,6 +69,8 @@ public class Map {
                 worldCol = 0;
                 worldRow++;
             }
+
+
         }
     }
 

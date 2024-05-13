@@ -19,32 +19,37 @@ import java.sql.Struct;
  */
 
 public class ClientRecivingThread extends Thread {
-    private Socket clientSocket;
+
     private DataInputStream reader;
+
     private PlayerMP clientPlayer;
     private GameScene boardPanel;
     boolean isRunning = true;
 
+    private Socket socket;
+
     /**
      * Creates a new instance of ClientRecivingThread
      *
-     * @param clientSocket the client socket
      * @param clientPlayer the player
      * @param boardPanel   the game scene
      */
 
-    public ClientRecivingThread(Socket clientSocket, PlayerMP clientPlayer, GameScene boardPanel) {
-        this.clientSocket = clientSocket;
+    public ClientRecivingThread(Socket socket,PlayerMP clientPlayer, GameScene boardPanel) {
+
+
         this.clientPlayer = clientPlayer;
         this.boardPanel = boardPanel;
+
+        this.socket = socket;
+
         try {
-            reader = new DataInputStream(clientSocket.getInputStream());
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            reader = new DataInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
     }
-
 
     @Override
     public void run() {
@@ -55,7 +60,6 @@ public class ClientRecivingThread extends Thread {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-            System.out.println("Received: " + sentence);
             if (sentence.startsWith("ID")) {
                 int pos1 = sentence.indexOf(',');
 
@@ -95,10 +99,10 @@ public class ClientRecivingThread extends Thread {
                 int dir = Integer.parseInt(parts[4]);
                 int id = Integer.parseInt(parts[5]);
 
-                if (id != clientPlayer.getID()) {
-                    boardPanel.getPlayer(id).setX(x);
-                    boardPanel.getPlayer(id).setY(y);
-                    boardPanel.getPlayer(id).setDirection(dir);
+                if (!username.equals(clientPlayer.getUsername())) {
+                    boardPanel.getPlayer(username).setX(x);
+                    boardPanel.getPlayer(username).setY(y);
+                    boardPanel.getPlayer(username).setDirection(dir);
                 }
 
             } else if (sentence.startsWith("Shot")) {
@@ -115,7 +119,7 @@ public class ClientRecivingThread extends Thread {
                 if (id == clientPlayer.getID()) {
                     int response = JOptionPane.showConfirmDialog(null, "Sorry, You are loss. Do you want to try again ?", "2D Multiplayer Game", JOptionPane.OK_CANCEL_OPTION);
                     if (response == JOptionPane.OK_OPTION) {
-                        //client.closeAll();
+//                        client.closeAll();
 //                        clientGUI.setVisibility(false);
 //                        clientGUI.dispose();
 
@@ -137,7 +141,6 @@ public class ClientRecivingThread extends Thread {
 
         try {
             reader.close();
-            clientSocket.close();
         } catch (IOException ex) {
             ex.printStackTrace();
         }

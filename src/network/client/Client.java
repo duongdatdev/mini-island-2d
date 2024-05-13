@@ -23,19 +23,20 @@ public class Client {
 
     private Client() throws IOException {
         protocol = new Protocol();
+
         try {
             clientSocket = new Socket(hostName, serverPort);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Server is not running");
             System.exit(0);
         }
-        writer = new DataOutputStream(clientSocket.getOutputStream());
+
     }
 
-    public void register(int posX, int posY) throws IOException {
+    public void register(String message) throws IOException {
 
-
-//        writer.writeUTF(protocol.RegisterPacket(posX, posY));
+        writer = new DataOutputStream(clientSocket.getOutputStream());
+        writer.writeUTF(message);
 
     }
 
@@ -48,9 +49,18 @@ public class Client {
                 writer = new DataOutputStream(s.getOutputStream());
                 writer.writeUTF(message);
             } catch (IOException ex) {
+
             }
         }
 
+    }
+
+    public DataInputStream getReader() {
+        return reader;
+    }
+
+    public void setReader(DataInputStream reader) {
+        this.reader = reader;
     }
 
     public DataOutputStream getWriter() {
@@ -74,16 +84,18 @@ public class Client {
     }
 
     public String getIP() {
-        return hostName;    }
+        return hostName;
+    }
 
     public static Client getGameClient() {
-        if (client == null)
+        if (client == null) {
 
             try {
                 client = new Client();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+        }
         return client;
     }
 

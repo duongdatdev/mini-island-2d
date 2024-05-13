@@ -4,6 +4,7 @@ import main.MiniIsland;
 import network.client.Client;
 import panels.auth.AuthHandler;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -27,14 +28,8 @@ public class SignInControl implements ActionListener {
         this.model = model;
         this.view = view;
 
-//        clientSocket = new Socket("localhost", 6788);
-//        outToServer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-//        inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-//        authHandler = new AuthHandler(Client.getGameClient().getSocket());
-//        authHandler.start();
-
         view.getSignInButton().addActionListener(this);
+        view.getSignUpButton().addActionListener(this);
     }
 
     private void setUsername(String username) {
@@ -55,34 +50,22 @@ public class SignInControl implements ActionListener {
             setUsername(username);
             setPassword(password);
 
-            model.signIn(() -> {
-                miniIsland.startGame();
-                miniIsland.getGameScene().getPlayerMP().setUsername(username);
-                miniIsland.changeToGamePanel();
+            model.signIn(username,password,() -> {
+                if (model.isSignedIn()) {
+                    miniIsland.startGame();
+                    miniIsland.getGameScene().getPlayerMP().setUsername(username);
 
-                miniIsland.validate();
-                miniIsland.repaint();
+                    miniIsland.changeToGamePanel();
+
+                    miniIsland.validate();
+                    miniIsland.repaint();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Login Failed");
+                }
             });
 
-            System.out.println("HHHHHHHHHHHHHH");
-
-//            if (model.isSignedIn()) {
-//                miniIsland.startGame();
-//                miniIsland.getGameScene().getPlayerMP().setUsername(username);
-//                miniIsland.changeToGamePanel();
-//
-//                System.out.println("HHH44444444444HHH");
-//
-//                miniIsland.validate();
-//                miniIsland.repaint();
-//            }
         } else if (e.getSource() == view.getSignUpButton()) {
-
-            setUsername(view.getUsernameField().getText());
-            setPassword(new String(view.getPasswordField().getPassword()));
-
-            model.signUp();
-
+            miniIsland.changePanel("SignUpPanel");
         }
     }
 }

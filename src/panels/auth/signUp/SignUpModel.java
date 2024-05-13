@@ -2,27 +2,42 @@ package panels.auth.signUp;
 
 import network.client.Client;
 import network.client.Protocol;
+import panels.auth.AuthAction;
+import panels.auth.AuthHandler;
 
-public class SignUpModel {
+public class SignUpModel extends AuthAction {
     private String username;
     private String email;
     private String password;
     private String confirmPassword;
     private Client client;
+
     public SignUpModel() {
         client = Client.getGameClient();
     }
 
     /**
      * Creates a new account
-     * @return a message indicating the result of the operation
      */
-    public String signUp() {
-        if (!password.equals(confirmPassword)) {
-            return "Passwords do not match";
+    public void signUp(Runnable onSuccess) {
+
+        try {
+            if (!password.equals(confirmPassword)) {
+                throw new Exception("Passwords do not match");
+            }
+            String loginRequest = "Register," + username + "," + confirmPassword + "," + email;
+
+            AuthHandler authHandler = new AuthHandler(onSuccess);
+            authHandler.start();
+
+            // Send login request to server
+            authHandler.sendToServer(loginRequest);
+
+        } catch (Exception e) {
+            // Handle IOException
+            e.printStackTrace();
         }
-        client.sendToServer(new Protocol().RegisterPacket(username, email, password));
-        return "Account created successfully";
+
     }
 
     public String getUsername() {

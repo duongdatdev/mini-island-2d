@@ -5,6 +5,9 @@ import network.client.Protocol;
 import objects.entities.Player;
 
 import java.awt.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 
 public class PlayerMP {
     private Player player;
@@ -13,14 +16,15 @@ public class PlayerMP {
     private int direction;
     private String username;
 
-    private Client client;
+    private Socket clientSocket;
+    private DataOutputStream writer;
 
     public PlayerMP(Player player) {
         this.player = player;
         this.x = player.getWorldX();
         this.y = player.getWorldY();
 
-        this.client = Client.getGameClient();
+        writer = Client.getGameClient().getWriter();
     }
 
     public PlayerMP(String username, int x, int y, int direction, int id) {
@@ -31,7 +35,6 @@ public class PlayerMP {
         this.username = username;
         this.player = new Player(username, x, y, direction, id);
 
-        client = Client.getGameClient();
     }
 
     //Counter for the number of times the player has moved
@@ -46,7 +49,7 @@ public class PlayerMP {
             x = player.getWorldX();
             y = player.getWorldY();
         }
-        if (player.isMove()  && !player.isCollision()) {
+        if (player.isMove() && !player.isCollision()) {
             x = player.getWorldX();
             y = player.getWorldY();
             switch (player.getDirection()) {
@@ -58,9 +61,8 @@ public class PlayerMP {
             updatePlayerInServer();
 
             count = 1;
-        }
-        else {
-            if (count == 1){
+        } else {
+            if (count == 1) {
                 if (player.getDirection().equals("STAND")) {
                     direction = 0;
                 }
@@ -81,12 +83,26 @@ public class PlayerMP {
             default -> player.setDirection("STAND");
         }
     }
-    public void updatePlayerInServer(){
-        client.sendToServer(new Protocol().UpdatePacket(username,x, y, id, direction));
+
+    public void updatePlayerInServer() {
+        Client.getGameClient().sendToServer(new Protocol().UpdatePacket(username, x, y, id, direction));
     }
+
     public void render(Graphics2D g2d, int tileSize) {
         g2d.drawString(username, player.getScreenX(), player.getScreenY() - 10);
         player.render(g2d, tileSize);
+    }
+
+    public void sendToServer(String message) {
+        if (message.equals("exit"))
+            System.exit(0);
+        else {
+            try {
+                writer.writeUTF(message);
+            } catch (IOException ex) {
+            }
+        }
+
     }
 
     public String getUsername() {
@@ -145,6 +161,14 @@ public class PlayerMP {
             default -> player.setDirection("STAND");
         }
         this.direction = direction;
+    }
+
+    public DataOutputStream getWriter() {
+        return writer;
+    }
+
+    public void setWriter(DataOutputStream writer) {
+        this.writer = writer;
     }
 
     public Player getPlayer() {

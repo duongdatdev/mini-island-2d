@@ -24,7 +24,7 @@ public class GameScene extends JPanel implements Runnable {
     private final int screenHeight = maxTilesY * tileSize;
 
     //FPS
-    private final double FPS = 60.0;
+    private final double FPS = 90.0;
     private int fps = 0;
     private int frameCount = 0;
     private long startTime = System.nanoTime();
@@ -171,7 +171,7 @@ public class GameScene extends JPanel implements Runnable {
 
             g2d.drawString("FPS: " + fps, 10, 20);
 
-            player.render(g2d, tileSize);
+//            player.render(g2d, tileSize);
 
             int i = 1;
             while (i < players.size()) {
@@ -202,13 +202,23 @@ public class GameScene extends JPanel implements Runnable {
     }
     public void removePlayer(int PlayerID)
     {
+        for (PlayerMP mp : players) {
+            if (mp.getUsername() != null) {
+                System.out.println("Player " + mp.getUsername() + " has left the game");
+                players.remove(mp);
+            }
+        }
         players.set(PlayerID,null);
     }
-    public PlayerMP getPlayer(int id)
+    public PlayerMP getPlayer(String username)
     {
-        return players.get(id);
+        for (PlayerMP mp : players) {
+            if (mp != null && mp.getUsername().equals(username)) {
+                return mp;
+            }
+        }
+        return null;
     }
-
 
     //Getters and Setters
     public int getMaxTilesX() {

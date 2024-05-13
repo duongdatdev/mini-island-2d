@@ -2,13 +2,10 @@ package panels.auth.signIn;
 
 import network.client.Client;
 import network.client.Protocol;
+import panels.auth.AuthAction;
 import panels.auth.AuthHandler;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
-
-public class SignInModel {
+public class SignInModel extends AuthAction {
     private int id;
     private String username;
     private String password;
@@ -56,26 +53,34 @@ public class SignInModel {
     public void setPassword(String password) {
         this.password = password;
     }
+
     public boolean isSignedIn() {
         return isSignedIn;
     }
+
     public void setSignedIn(boolean signedIn) {
         isSignedIn = signedIn;
     }
 
-    public void signIn(Runnable onSuccess) {
-        Socket socket = null;
+    public void signIn(String username, String password, Runnable onSuccess) {
         try {
-            socket = Client.getGameClient().getSocket();
-            DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream());
+            String loginRequest = "Login," + username + "," + password;
 
-            outToServer.writeUTF("Login," + username + "," + password);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            AuthHandler authHandler = new AuthHandler(onSuccess);
+            authHandler.start();
+
+
+            // Send login request to server
+            authHandler.sendToServer(loginRequest);
+
+        } catch (Exception e) {
+            // Handle IOException
+            e.printStackTrace();
+            return;
         }
 
-        new AuthHandler(socket,onSuccess).start();
     }
+
 
     public boolean signUp() {
         return true;
