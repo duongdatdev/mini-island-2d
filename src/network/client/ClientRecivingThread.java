@@ -8,7 +8,6 @@ import javax.swing.*;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.sql.Struct;
 
 /**
  * This class is responsible for receiving messages from the server and updating the game state accordingly.
@@ -23,7 +22,7 @@ public class ClientRecivingThread extends Thread {
     private DataInputStream reader;
 
     private PlayerMP clientPlayer;
-    private GameScene boardPanel;
+    private GameScene gameScene;
     boolean isRunning = true;
 
     private Socket socket;
@@ -32,14 +31,14 @@ public class ClientRecivingThread extends Thread {
      * Creates a new instance of ClientRecivingThread
      *
      * @param clientPlayer the player
-     * @param boardPanel   the game scene
+     * @param gameScene    the game scene
      */
 
-    public ClientRecivingThread(Socket socket, PlayerMP clientPlayer, GameScene boardPanel) {
+    public ClientRecivingThread(Socket socket, PlayerMP clientPlayer, GameScene gameScene) {
 
 
         this.clientPlayer = clientPlayer;
-        this.boardPanel = boardPanel;
+        this.gameScene = gameScene;
 
         this.socket = socket;
 
@@ -78,15 +77,21 @@ public class ClientRecivingThread extends Thread {
                 int pos2 = sentence.indexOf('-');
                 int pos3 = sentence.indexOf('|');
                 int pos4 = sentence.indexOf('!');
+                int pos5 = sentence.indexOf('#');
 
                 String username = sentence.substring(9, pos1);
                 int x = Integer.parseInt(sentence.substring(pos1 + 1, pos2));
                 int y = Integer.parseInt(sentence.substring(pos2 + 1, pos3));
                 int dir = Integer.parseInt(sentence.substring(pos3 + 1, pos4));
-                int id = Integer.parseInt(sentence.substring(pos4 + 1, sentence.length()));
+                int id = Integer.parseInt(sentence.substring(pos4 + 1, pos5));
+                String map = sentence.substring(pos5 + 1, sentence.length());
 
-                if (id != clientPlayer.getID())
-                    boardPanel.registerNewPlayer(new PlayerMP(username, x, y, dir, id));
+                if (!username.equals(gameScene.getPlayerMP().getUsername())) {
+                    if (gameScene.getCurrentMap().equals(map))
+                        gameScene.registerNewPlayer(new PlayerMP(username, x, y, dir, id));
+                }
+//                if (id != clientPlayer.getID())d
+//                    gameScene.registerNewPlayer(new PlayerMP(username, x, y, dir, id));
 
                 System.out.println("New Client ID= " + id);
                 System.out.println("New Client Username= " + username);
@@ -101,14 +106,14 @@ public class ClientRecivingThread extends Thread {
                 int id = Integer.parseInt(parts[5]);
 
                 if (!username.equals(clientPlayer.getUsername())) {
-                    PlayerMP player = boardPanel.getPlayer(username);
+                    PlayerMP player = gameScene.getMap().getPlayer(username);
 
                     if (player != null) {
                         player.setX(x);
                         player.setY(y);
                         player.setDirection(dir);
                     } else {
-                        System.out.println("Player with username " + username + " not found.");
+                        System.out.println("Player with username " + username + " not found in the map.");
                     }
                 }
 
@@ -126,23 +131,64 @@ public class ClientRecivingThread extends Thread {
                 if (id == clientPlayer.getID()) {
                     int response = JOptionPane.showConfirmDialog(null, "Sorry, You are loss. Do you want to try again ?", "2D Multiplayer Game", JOptionPane.OK_CANCEL_OPTION);
                     if (response == JOptionPane.OK_OPTION) {
-//                        client.closeAll();
-//                        clientGUI.setVisibility(false);
-//                        clientGUI.dispose();
+                        //han
 
                     } else {
                         System.exit(0);
                     }
                 } else {
-                    String username = boardPanel.getPlayerMP().getUsername();
+                    String username = gameScene.getPlayerMP().getUsername();
 
-                    boardPanel.removePlayer(username);
+                    gameScene.removePlayer(username);
+                }
+
+            } else if (sentence.startsWith("TeleportToMap")) {
+                String[] parts = sentence.split(",");
+
+                String username = parts[1];
+                String mapName = parts[2];
+                int x = Integer.parseInt(parts[3]);
+                int y = Integer.parseInt(parts[4]);
+
+
+                System.out.println(gameScene.getPlayerMP().getUsername());
+                System.out.println(username);
+                System.out.println(!username.equals(gameScene.getPlayerMP().getUsername()));
+                if (!username.equals(gameScene.getPlayerMP().getUsername())) {
+                    gameScene.teleportPlayer(username, mapName, x, y);
+                }
+            } else if (sentence.startsWith("Chat")) {
+                String[] parts = sentence.split(",");
+
+                String username = parts[1];
+                String message = parts[2];
+
+
+                if (username.equals(clientPlayer.getUsername())) {
+                    gameScene.getPlayerMP().getDialogText().loadImage(message);
+                } else {
+                    gameScene.getPlayer(username).getDialogText().loadImage(message);
+                }
+            } else if (sentence.startsWith("Leaderboard")) {
+
+                System.out.println(sentence);
+                String[] parts = sentence.split(",");
+
+                gameScene.getLeaderBoard().clear();
+                for (int i = 1; i < parts.length; i++) {
+                    String[] playerInfo = parts[i].split(" ");
+                    String username = playerInfo[0];
+                    int score = Integer.parseInt(playerInfo[1]);
+
+                    gameScene.getLeaderBoard().add(username, score);
                 }
             } else if (sentence.startsWith("Exit")) {
-                String username = sentence.substring(4);
+                String username = sentence.substring(4, sentence.length());
+
+                System.out.println("Exit: " + username);
 
                 if (!username.equals(clientPlayer.getUsername())) {
-                    boardPanel.removePlayer(username);
+                    gameScene.removePlayer(username);
                 }
             }
 

@@ -43,7 +43,6 @@ public class ImageHandler {
             int rows = tileMap.getHeight() / tileHeight;
             int cols = tileMap.getWidth() / tileWidth;
 
-
             /*
              * 4 is the number of states of the player
              * 0 -> Default

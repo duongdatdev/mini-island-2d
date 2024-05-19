@@ -327,7 +327,7 @@ public class Test {
 
     // run it
     public static void main(String[] args) {
-        Test maze = new Test(20);
+        Test maze = new Test(10,10);
         maze.solve();
         maze.draw();
     }

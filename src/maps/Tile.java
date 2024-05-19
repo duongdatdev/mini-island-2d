@@ -7,8 +7,6 @@ public class Tile {
     private boolean collision;
     private TileType type;
 
-
-
     public BufferedImage getImage() {
         return image;
     }

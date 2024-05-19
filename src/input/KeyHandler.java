@@ -4,7 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
-    private boolean up, down, left, right;
+    private boolean up, down, left, right, space;
 
     public KeyHandler() {
         up = false;
@@ -23,20 +23,23 @@ public class KeyHandler implements KeyListener {
         int keyCode = e.getKeyCode();
         switch (keyCode) {
             case KeyEvent.VK_W,
-                    KeyEvent.VK_UP:
+                 KeyEvent.VK_UP:
                 up = true;
                 break;
             case KeyEvent.VK_A,
-                    KeyEvent.VK_LEFT:
+                 KeyEvent.VK_LEFT:
                 left = true;
                 break;
             case KeyEvent.VK_S,
-                    KeyEvent.VK_DOWN:
+                 KeyEvent.VK_DOWN:
                 down = true;
                 break;
             case KeyEvent.VK_D,
-                    KeyEvent.VK_RIGHT:
+                 KeyEvent.VK_RIGHT:
                 right = true;
+                break;
+            case KeyEvent.VK_SPACE:
+                space = true;
                 break;
         }
     }
@@ -46,20 +49,23 @@ public class KeyHandler implements KeyListener {
         int keyCode = e.getKeyCode();
         switch (keyCode) {
             case KeyEvent.VK_W
-                    , KeyEvent.VK_UP:
+            , KeyEvent.VK_UP:
                 up = false;
                 break;
             case KeyEvent.VK_DOWN,
-                    KeyEvent.VK_S:
+                 KeyEvent.VK_S:
                 down = false;
                 break;
             case KeyEvent.VK_A,
-                    KeyEvent.VK_LEFT:
+                 KeyEvent.VK_LEFT:
                 left = false;
                 break;
             case KeyEvent.VK_D,
-                    KeyEvent.VK_RIGHT:
+                 KeyEvent.VK_RIGHT:
                 right = false;
+                break;
+            case KeyEvent.VK_SPACE:
+                space = false;
                 break;
         }
     }
@@ -78,5 +84,21 @@ public class KeyHandler implements KeyListener {
 
     public boolean isRight() {
         return right;
+    }
+
+    public void setUp(boolean up) {
+        this.up = up;
+    }
+
+    public void setDown(boolean down) {
+        this.down = down;
+    }
+
+    public void setLeft(boolean left) {
+        this.left = left;
+    }
+
+    public void setRight(boolean right) {
+        this.right = right;
     }
 }

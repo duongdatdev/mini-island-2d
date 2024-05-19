@@ -16,7 +16,7 @@ public class Player extends Entity {
     private int spriteIndex = 0;
     private int countFrames = 0;
     private BufferedImage[][] standingImages;
-    private GameScene gameScene;
+    public GameScene gameScene;
     private String username;
 
     private int state = 0;

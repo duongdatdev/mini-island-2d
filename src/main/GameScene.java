@@ -1,16 +1,24 @@
 package main;
 
 import collision.Collision;
+import font.CustomFont;
+import maps.pvp.PvpMap;
+import network.client.Client;
+import network.client.Protocol;
 import network.entitiesNet.PlayerMP;
+import network.leaderBoard.LeaderBoard;
+import objects.entities.NPC;
 import objects.entities.Player;
 import input.KeyHandler;
 import maps.Map;
-import panels.ChatPanel;
+import panels.chat.ChatPanel;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -24,11 +32,21 @@ public class GameScene extends JPanel implements Runnable {
     private final int screenWidth = maxTilesX * tileSize;
     private final int screenHeight = maxTilesY * tileSize;
 
+    //Map
+    public String currentMap = "lobby";
+
+    private PvpMap pvpMap;
+
+    //NPC
+    private NPC pvpNPC;
+    CustomButton teleportButton;
+
+    private NPC topNPC;
+    CustomButton topButton;
+
     //FPS
     private final double FPS = 90.0;
     private int fps = 0;
-    private int frameCount = 0;
-    private long startTime = System.nanoTime();
 
     private Thread gameThread;
 
@@ -38,7 +56,10 @@ public class GameScene extends JPanel implements Runnable {
 
     //Network
     private PlayerMP playerMP;
-    private static ArrayList<PlayerMP> players;
+    private ArrayList<PlayerMP> players;
+
+    //Leaderboard
+    private LeaderBoard leaderBoard;
 
     //Game settings
     private boolean isRunning;
@@ -49,13 +70,25 @@ public class GameScene extends JPanel implements Runnable {
     //Handler for the game scene
 
     //Chat
-    private JButton chatButton;
-//    private JPanel chatPanel;
     private ChatPanel chatPanel;
 
-    public GameScene(boolean isRunning){
+    public GameScene(boolean isRunning) {
         keyHandler = new KeyHandler();
         this.addKeyListener(keyHandler);
+
+
+        //NPC
+        try {
+            pvpNPC = new NPC("PvP", 1000, 1000, ImageIO.read(getClass().getResource("/Maps/Pvp/PvpNPC.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            topNPC = new NPC("Top 20", 1693, 535, ImageIO.read(getClass().getResource("/NPC/top20NPC.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         collision = new Collision(this);
 
@@ -65,11 +98,12 @@ public class GameScene extends JPanel implements Runnable {
 
         playerMP = new PlayerMP(player);
 
-        players = new ArrayList<PlayerMP>();
 
         map = new Map(this);
 
-//        players.add(null);
+        pvpMap = new PvpMap(this);
+
+        players = map.players;
 
         repaint();
 
@@ -81,7 +115,7 @@ public class GameScene extends JPanel implements Runnable {
         chatPanel.setBackground(Color.WHITE);
         chatPanel.setPreferredSize(new Dimension(200, 100));
 
-        JButton chatButton = new JButton("Chat");
+        CustomButton chatButton = new CustomButton("Chat");
         chatButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -90,11 +124,81 @@ public class GameScene extends JPanel implements Runnable {
             }
         });
 
-        setLayout(new BorderLayout());
+        //Leaderboard
 
-        add(chatPanel, BorderLayout.SOUTH);
+        leaderBoard = new LeaderBoard();
 
-        add(chatButton, BorderLayout.NORTH);
+        topButton = new CustomButton("Top");
+        topButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                leaderBoard.setVisible(!leaderBoard.isVisible());
+                requestFocusInWindow();
+            }
+        });
+
+        teleportButton = new CustomButton("Teleport");
+
+        teleportButton.setBounds(screenWidth - 100, 20, 100, 50);
+        teleportButton.setVisible(false);
+        teleportButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                switch (currentMap) {
+                    case "lobby":
+                        player.setWorldX(1000);
+                        player.setWorldY(1000);
+                        currentMap = "pvp";
+                        map.removeAllPlayers();
+
+                        Client.getGameClient().sendToServer(new Protocol().teleportPacket(playerMP.getUsername(), currentMap, player.getWorldX(), player.getWorldY()));
+                        break;
+                    case "pvp":
+                        player.setWorldX(1000);
+                        player.setWorldY(1000);
+                        currentMap = "lobby";
+                        pvpMap.removeAllPlayers();
+
+                        Client.getGameClient().sendToServer(new Protocol().teleportPacket(playerMP.getUsername(), currentMap, player.getWorldX(), player.getWorldY()));
+                        break;
+                }
+                requestFocusInWindow();
+            }
+        });
+        teleportButton.setVisible(false);
+        add(teleportButton);
+
+        setLayout(null);
+
+        chatPanel.setSize(400, 100);
+
+        int centerXChat = (screenWidth - chatPanel.getWidth()) / 2;
+        int centerYChat = (screenHeight - chatPanel.getHeight()) / 2;
+
+        chatPanel.setLocation(centerXChat, screenHeight - 120);
+
+        leaderBoard.setSize(300, 400);
+        int centerXLeaderBoard = (screenWidth - leaderBoard.getWidth()) / 2;
+        int centerYLeaderBoard = (screenHeight - leaderBoard.getHeight()) / 2;
+        leaderBoard.setLocation(centerXLeaderBoard, centerYLeaderBoard);
+
+        leaderBoard.setVisible(false);
+
+        add(leaderBoard);
+
+        chatButton.setBounds(screenWidth - 60, 20, 50, 50);
+
+        topButton.setBounds((screenWidth - 100) / 2, screenHeight - 100, 100, 50);
+
+        add(topButton);
+
+        chatPanel.setVisible(false);
+
+        add(chatPanel);
+
+        add(chatButton);
+
+        init();
     }
 
     private void init() {
@@ -134,14 +238,31 @@ public class GameScene extends JPanel implements Runnable {
 
             if (delta >= 1.0) {
                 updateAndRepaint();
-                drawCount++;
+//                drawCount++;
                 delta--;
             }
-            if (timer >= 1000000000) {
-                fps = drawCount;
-                drawCount = 0;
-                timer = 0;
+
+            if (pvpNPC.isPlayerNear(player)) {
+                teleportButton.setVisible(true);
+            } else {
+                teleportButton.setVisible(false);
             }
+
+            if (topNPC.isPlayerNear(player)) {
+                topButton.setVisible(true);
+            } else {
+                if (topButton.isVisible())
+                    topButton.setVisible(false);
+            }
+//            if (timer >= 1000000000) {
+//                fps = drawCount;
+//                drawCount = 0;
+//                timer = 0;
+//                chatPanel.setChatImage(null);
+//            }
+//            if (timer >= 2000000000) {
+//                chatPanel.setChatImage(null);
+//            }
         }
     }
 
@@ -158,57 +279,61 @@ public class GameScene extends JPanel implements Runnable {
         playerMP.update();
     }
 
+    public int drawChat = 0;
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        map.draw(g2d, tileSize);
-        playerMP.render(g2d, tileSize);
+
+        g2d.setFont(new Font("Arial", Font.BOLD, 20));
+//        playerMP.render(g2d, tileSize);
         isRunning = true;
 
-        if(isRunning) {
-
-            g2d.drawString("FPS: " + fps, 10, 20);
-
-//            player.render(g2d, tileSize);
-
-            for (PlayerMP playerMP : players) {
-
-                if (playerMP != null) {
-                    int worldX = playerMP.getX();
-                    int worldY = playerMP.getY();
-
-                    int screenX = worldX - player.getWorldX() + player.getScreenX();
-                    int screenY = worldY - player.getWorldY() + player.getScreenY();
-
-                    if (worldX > player.getWorldX() - player.getScreenX() - tileSize*2
-                            && worldX < player.getWorldX() + player.getScreenX() + tileSize*2
-                            && worldY > player.getWorldY() - player.getScreenY() - tileSize*2
-                            && worldY < player.getWorldY() + player.getScreenY()+ tileSize*2) {
-                        g2d.drawImage(playerMP.getPlayer().currentSprite(), screenX, screenY, tileSize, tileSize, null);
-                        g2d.drawString(playerMP.getUsername(), screenX, screenY - 10);
-                    }
-                }
+        if (isRunning) {
+            switch (currentMap) {
+                case "lobby":
+                    map.draw(g2d, tileSize);
+                    break;
+                case "pvp":
+                    pvpMap.draw(g2d, tileSize);
+                    break;
             }
+
+            pvpNPC.checkDraw(player, g2d, tileSize);
+            topNPC.checkDraw(player, g2d, tileSize * 2);
+
+            playerMP.render(g2d, tileSize);
 
         }
     }
 
-    public void registerNewPlayer(PlayerMP newPlayer)
-    {
-        players.add(newPlayer);
+    public void registerNewPlayer(PlayerMP newPlayer) {
+        getMap().addPlayer(newPlayer);
     }
-    public void removePlayer(String username)
-    {
-        for (PlayerMP mp : players) {
-            if (!Objects.equals(mp.getUsername(), username)) {
-                System.out.println("Player " + mp.getUsername() + " has left the game");
-                players.remove(mp);
+
+    public void teleportPlayer(String username, String map, int x, int y) {
+        System.out.println(username);
+
+        PlayerMP player = getMap().getPlayer(username);
+        if (player != null) {
+            player.setX(x);
+            player.setY(y);
+            player.getPlayer().setWorldX(x);
+            player.getPlayer().setWorldY(y);
+
+            if (!currentMap.equals(map)) {
+                System.out.println("Teleporting player" + map);
+                getMap().removePlayer(username);
             }
         }
     }
-    public PlayerMP getPlayer(String username)
-    {
+
+    public void removePlayer(String username) {
+        map.removePlayer(username);
+    }
+
+    public PlayerMP getPlayer(String username) {
         for (PlayerMP mp : players) {
             if (mp != null && mp.getUsername().equals(username)) {
                 return mp;
@@ -267,7 +392,11 @@ public class GameScene extends JPanel implements Runnable {
     }
 
     public Map getMap() {
-        return map;
+        return switch (currentMap) {
+            case "lobby" -> map;
+            case "pvp" -> pvpMap;
+            default -> map;
+        };
     }
 
     public void setMap(Map map) {
@@ -280,5 +409,29 @@ public class GameScene extends JPanel implements Runnable {
 
     public void setCollisionChecker(Collision collision) {
         this.collision = collision;
+    }
+
+    public ChatPanel getChatPanel() {
+        return chatPanel;
+    }
+
+    public void setChatPanel(ChatPanel chatPanel) {
+        this.chatPanel = chatPanel;
+    }
+
+    public LeaderBoard getLeaderBoard() {
+        return leaderBoard;
+    }
+
+    public void setLeaderBoard(LeaderBoard leaderBoard) {
+        this.leaderBoard = leaderBoard;
+    }
+
+    public String getCurrentMap() {
+        return currentMap;
+    }
+
+    public void setCurrentMap(String currentMap) {
+        this.currentMap = currentMap;
     }
 }

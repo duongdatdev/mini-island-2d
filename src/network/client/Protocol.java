@@ -12,13 +12,13 @@ public class Protocol {
 
     }
 
-    public String UpdatePacket(String username,int x, int y, int id, int dir) {
-        message = "Update,"+ username+ "," + x + "," + y + "," + dir + "," + id;
+    public String UpdatePacket(String username, int x, int y, int id, int dir) {
+        message = "Update," + username + "," + x + "," + y + "," + dir + "," + id;
         return message;
     }
 
-    public String chatPacket(String message) {
-        message = "Chat" + message ;
+    public String chatPacket(String username, String message) {
+        message = "Chat," + username + "," + message;
         return message;
     }
 
@@ -39,6 +39,16 @@ public class Protocol {
 
     public String ShotPacket(int id) {
         message = "Shot" + id;
+        return message;
+    }
+
+    public String teleportPacket(String username ,String map, int x, int y) {
+        message = "TeleportToMap," + username  + "," + map + "," + x + "," + y;
+        return message;
+    }
+
+    public String PlayerExitMapPacket(String username, String map) {
+        message = "ExitMap" + username + "," + map;
         return message;
     }
 

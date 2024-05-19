@@ -1,4 +1,4 @@
-package panels;
+package panels.chat;
 
 import main.GameScene;
 import network.client.Client;
@@ -8,6 +8,7 @@ import network.entitiesNet.PlayerMP;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 public class ChatPanel extends JPanel implements ActionListener {
     private JButton submitButton;
@@ -15,6 +16,8 @@ public class ChatPanel extends JPanel implements ActionListener {
     private GameScene gameScene;
     private PlayerMP playerMP;
     private Client client;
+
+    private BufferedImage chatImage;
 
     public ChatPanel(GameScene gameScene) {
         submitButton = new JButton("Submit");
@@ -29,6 +32,8 @@ public class ChatPanel extends JPanel implements ActionListener {
 
         this.playerMP = gameScene.getPlayerMP();
 
+        this.submitButton.addActionListener(this);
+
         init();
     }
     private void init() {
@@ -41,8 +46,25 @@ public class ChatPanel extends JPanel implements ActionListener {
         if (e.getSource() == submitButton) {
             String message = chatField.getText();
 
-            client.sendToServer(new Protocol().chatPacket(message));
+            //load the image
+            playerMP.setChatImage(playerMP.getDialogText().loadImage(message));
+
+            // Send the message to the server
+
+            client.sendToServer(new Protocol().chatPacket(gameScene.getPlayerMP().getUsername(),message));
         }
 
+    }
+
+    public BufferedImage getChatImage() {
+        return chatImage;
+    }
+
+    public void setChatImage(BufferedImage chatImage) {
+        this.chatImage = chatImage;
+    }
+
+    public void drawChatImage() {
+        gameScene.getGraphics().drawImage(chatImage, 0, 0, null);
     }
 }

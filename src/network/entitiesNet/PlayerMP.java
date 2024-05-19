@@ -3,8 +3,10 @@ package network.entitiesNet;
 import network.client.Client;
 import network.client.Protocol;
 import objects.entities.Player;
+import panels.chat.DialogText;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -19,12 +21,18 @@ public class PlayerMP {
     private Socket clientSocket;
     private DataOutputStream writer;
 
+    private BufferedImage chatImage;
+
+    private DialogText dialogText;
+
     public PlayerMP(Player player) {
         this.player = player;
         this.x = player.getWorldX();
         this.y = player.getWorldY();
 
         writer = Client.getGameClient().getWriter();
+
+        dialogText = new DialogText();
     }
 
     public PlayerMP(String username, int x, int y, int direction, int id) {
@@ -35,6 +43,7 @@ public class PlayerMP {
         this.username = username;
         this.player = new Player(username, x, y, direction, id);
 
+        dialogText = new DialogText();
     }
 
     //Counter for the number of times the player has moved
@@ -89,8 +98,21 @@ public class PlayerMP {
     }
 
     public void render(Graphics2D g2d, int tileSize) {
-        g2d.drawString(username, player.getScreenX(), player.getScreenY() - 10);
+        // Calculate the center of the player's sprite
+        int centerX = player.getScreenX() + tileSize / 2;
+
+        // Get the width of the username string
+        int stringWidth = g2d.getFontMetrics().stringWidth(username);
+
+        // Adjust the x-coordinate of the username to center it
+        int usernameX = centerX - stringWidth / 2;
+
+        // Draw the username at the calculated position
+        g2d.drawString(username, usernameX, player.getScreenY());
         player.render(g2d, tileSize);
+        if (chatImage != null) {
+            g2d.drawImage(chatImage, player.getScreenX() - 50, player.getScreenY() - chatImage.getHeight() - 5, null);
+        }
     }
 
     public void sendToServer(String message) {
@@ -177,5 +199,21 @@ public class PlayerMP {
 
     public void setPlayer(Player player) {
         this.player = player;
+    }
+
+    public BufferedImage getChatImage() {
+        return chatImage;
+    }
+
+    public void setChatImage(BufferedImage chatImage) {
+        this.chatImage = chatImage;
+    }
+
+    public DialogText getDialogText() {
+        return dialogText;
+    }
+
+    public void setDialogText(DialogText dialogText) {
+        this.dialogText = dialogText;
     }
 }

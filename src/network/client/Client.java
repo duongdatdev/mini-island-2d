@@ -34,7 +34,6 @@ public class Client {
     }
 
     public void register(String message) throws IOException {
-
         writer = new DataOutputStream(clientSocket.getOutputStream());
         writer.writeUTF(message);
 
