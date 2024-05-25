@@ -6,6 +6,9 @@ import main.GameScene;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class Player extends Entity {
     private int screenX;
@@ -18,6 +21,8 @@ public class Player extends Entity {
     private BufferedImage[][] standingImages;
     public GameScene gameScene;
     private String username;
+
+    private String lastDirection = "DOWN";
 
     private int state = 0;
 
@@ -77,6 +82,7 @@ public class Player extends Entity {
 
         if (isMove()) {
 
+            System.out.println("Player moved");
             if (keyHandler.isUp()) {
                 direction = "UP";
             }
@@ -93,6 +99,7 @@ public class Player extends Entity {
             collision = false;
 
             gameScene.getCollisionChecker().checkTile(this);
+//            gameScene.getCollisionChecker().checkCollision(this, gameScene.getMap().getNpcs());
 
             if (!collision) {
                 if (keyHandler.isUp()) {
@@ -108,19 +115,48 @@ public class Player extends Entity {
                     worldX += speed;
                 }
             }
+            else {
+                keyHandler.reset();
+            }
+        } else if (isSpace()) {
+            System.out.println("Player shot");
+            gameScene.getPlayerMP().shot();
         } else {
             if (count == 1) {
+                lastDirection = direction;
                 direction = "STAND";
             }
             count = 0;
         }
+
+        // update the position of each bullet
+//        Iterator<Bullet> iterator = bullets.iterator();
+//        while (iterator.hasNext()) {
+//            Bullet bullet = iterator.next();
+//            bullet.move();
+////            if (bullet.isOutOfScreen()) { // assuming you have this method to check if bullet is out of screen
+////                iterator.remove();
+////            }
+//        }
     }
 
     public void render(Graphics2D g2d, int tileSize) {
         g2d.drawImage(currentSprite(), screenX, screenY, tileSize * scale, tileSize * scale, null);
+//        for (Bullet bullet : bullets) {
+//            bullet.render(g2d,, 10);
+//        }
     }
 
-    public BufferedImage currentSprite() {
+    public boolean isSpace() {
+        return keyHandler.isSpace();
+    }
+
+//    public void shot() {
+//        Bullet bullet = new Bullet(worldX, worldY, lastDirection);
+//        bullets.add(bullet);
+//    }
+
+        public BufferedImage currentSprite() {
         BufferedImage playerImage = null;
         countFrames++;
         if (countFrames > 11) {

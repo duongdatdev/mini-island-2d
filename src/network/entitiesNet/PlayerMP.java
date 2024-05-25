@@ -2,6 +2,7 @@ package network.entitiesNet;
 
 import network.client.Client;
 import network.client.Protocol;
+import objects.entities.Bomb;
 import objects.entities.Player;
 import panels.chat.DialogText;
 
@@ -16,7 +17,12 @@ public class PlayerMP {
     private int x, y;
     private int id;
     private int direction;
+    private int lastDirection;
     private String username;
+
+    //Bombs
+    private Bomb bomb[]=new Bomb[1000];
+    private int curBomb=0;
 
     private Socket clientSocket;
     private DataOutputStream writer;
@@ -73,6 +79,7 @@ public class PlayerMP {
         } else {
             if (count == 1) {
                 if (player.getDirection().equals("STAND")) {
+                    lastDirection = direction;
                     direction = 0;
                 }
                 updatePlayerInServer();
@@ -94,7 +101,7 @@ public class PlayerMP {
     }
 
     public void updatePlayerInServer() {
-        Client.getGameClient().sendToServer(new Protocol().UpdatePacket(username, x, y, id, direction));
+        Client.getGameClient().sendToServer(new Protocol().UpdatePacket(username, x, y, direction));
     }
 
     public void render(Graphics2D g2d, int tileSize) {
@@ -125,6 +132,53 @@ public class PlayerMP {
             }
         }
 
+    }
+
+    public void shot()
+    {
+        bomb[curBomb]=new Bomb(this.getX(),this.getY(),lastDirection);
+//
+        bomb[curBomb].startBombThread(true);
+//
+        curBomb++;
+//        player.shot();
+//        Bullet bullet = player.getBullets().get(player.getBullets().size() - 1);
+//        Client.getGameClient().sendToServer(new Protocol().ShotPacket(player.getId(), bullet.getX(), bullet.getY(), bullet.getDirection()));
+    }
+
+    public void Shot()
+    {
+        bomb[curBomb]=new Bomb(this.getX(),this.getY(),lastDirection);
+
+        bomb[curBomb].startBombThread(false);
+        curBomb++;
+
+    }
+
+    public int getDirection() {
+        switch (player.getDirection()) {
+            case "DOWN" -> direction = 1;
+            case "UP" -> direction = 2;
+            case "LEFT" -> direction = 3;
+            case "RIGHT" -> direction = 4;
+        }
+        return direction;
+    }
+
+    public void setDirection(int direction) {
+        switch (direction) {
+            case 1 -> player.setDirection("DOWN");
+            case 2 -> player.setDirection("UP");
+            case 3 -> player.setDirection("LEFT");
+            case 4 -> player.setDirection("RIGHT");
+            default -> player.setDirection("STAND");
+        }
+        this.direction = direction;
+    }
+
+    public Bomb[] getBomb()
+    {
+        return bomb;
     }
 
     public String getUsername() {
@@ -162,27 +216,6 @@ public class PlayerMP {
     public void setID(int id) {
         player.setId(id);
         this.id = id;
-    }
-
-    public int getDirection() {
-        switch (player.getDirection()) {
-            case "DOWN" -> direction = 1;
-            case "UP" -> direction = 2;
-            case "LEFT" -> direction = 3;
-            case "RIGHT" -> direction = 4;
-        }
-        return direction;
-    }
-
-    public void setDirection(int direction) {
-        switch (direction) {
-            case 1 -> player.setDirection("DOWN");
-            case 2 -> player.setDirection("UP");
-            case 3 -> player.setDirection("LEFT");
-            case 4 -> player.setDirection("RIGHT");
-            default -> player.setDirection("STAND");
-        }
-        this.direction = direction;
     }
 
     public DataOutputStream getWriter() {

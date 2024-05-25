@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class PvpNPC extends NPC{
     public PvpNPC(int worldX, int worldY) {
-        super("PVP",worldX, worldY, null);
+        super("PVP",worldX, worldY, null,32);
         try {
             this.sprite = ImageIO.read(getClass().getResource("/Maps/Pvp/PvpNPC.png"));
         } catch (IOException e) {

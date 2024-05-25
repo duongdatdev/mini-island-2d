@@ -12,8 +12,8 @@ public class Protocol {
 
     }
 
-    public String UpdatePacket(String username, int x, int y, int id, int dir) {
-        message = "Update," + username + "," + x + "," + y + "," + dir + "," + id;
+    public String UpdatePacket(String username, int x, int y, int dir) {
+        message = "Update," + username + "," + x + "," + y + "," + dir;
         return message;
     }
 
@@ -37,13 +37,18 @@ public class Protocol {
         return message;
     }
 
-    public String ShotPacket(int id) {
-        message = "Shot" + id;
+    public String ShotPacket(String username) {
+        message = "Shot" + username;
         return message;
     }
 
-    public String teleportPacket(String username ,String map, int x, int y) {
-        message = "TeleportToMap," + username  + "," + map + "," + x + "," + y;
+    public String teleportPacket(String username, String map, int x, int y) {
+        message = "TeleportToMap," + username + "," + map + "," + x + "," + y;
+        return message;
+    }
+
+   public String enterMazePacket(String username) {
+        message = "EnterMaze" + username;
         return message;
     }
 
@@ -52,8 +57,8 @@ public class Protocol {
         return message;
     }
 
-    public String RemoveClientPacket(int id) {
-        message = "Remove" + id;
+    public String RemoveClientPacket(String username) {
+        message = "Remove" + username;
         return message;
     }
 

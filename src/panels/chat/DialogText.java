@@ -13,11 +13,9 @@ import java.io.IOException;
 
 public class DialogText {
     private BufferedImage chatImage;
-    private static BufferedImage oneLineImage;
+    private BufferedImage oneLineImage;
     private BufferedImage twoLineImage;
     private BufferedImage threeLineImage;
-
-    private DialogText instance;
 
     public DialogText() {
         try {

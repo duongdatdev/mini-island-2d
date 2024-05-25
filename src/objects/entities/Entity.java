@@ -19,6 +19,10 @@ public abstract class Entity extends GameObject {
         return hitBox;
     }
 
+    public void setHitBox(Rectangle hitBox) {
+        this.hitBox = hitBox;
+    }
+
     public int getWorldX() {
         return worldX;
     }

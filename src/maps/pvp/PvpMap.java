@@ -5,6 +5,8 @@ import maps.Map;
 import maps.TileType;
 import network.client.Client;
 
+import java.awt.*;
+
 public class PvpMap extends Map {
     private int startX;
     private int startY;
@@ -18,6 +20,10 @@ public class PvpMap extends Map {
         mapTileNum = new int[mapTileCol][mapTileRow];
         loadMap("/Maps/Pvp/pvpMap.png");
         readMap("/Maps/Pvp/pvpMap.csv");
+    }
+
+    @Override
+    protected void renderNPC(Graphics2D g2d) {
     }
 
     @Override

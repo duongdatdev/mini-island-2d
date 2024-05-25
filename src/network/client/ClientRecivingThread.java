@@ -5,6 +5,7 @@ import network.entitiesNet.PlayerMP;
 import panels.auth.signIn.SignInModel;
 
 import javax.swing.*;
+import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -103,7 +104,6 @@ public class ClientRecivingThread extends Thread {
                 int x = Integer.parseInt(parts[2]);
                 int y = Integer.parseInt(parts[3]);
                 int dir = Integer.parseInt(parts[4]);
-                int id = Integer.parseInt(parts[5]);
 
                 if (!username.equals(clientPlayer.getUsername())) {
                     PlayerMP player = gameScene.getMap().getPlayer(username);
@@ -119,12 +119,13 @@ public class ClientRecivingThread extends Thread {
 
             } else if (sentence.startsWith("Shot")) {
 
-                int id = Integer.parseInt(sentence.substring(4));
+                String username = sentence.substring(4);
 
-                if (id != clientPlayer.getID()) {
-                    System.out.println("Shot from " + id);
+                if (username.equals(clientPlayer.getUsername())) {
+                    gameScene.getPlayerMP().Shot();
+                } else {
+                    gameScene.getPlayer(username).Shot();
                 }
-
             } else if (sentence.startsWith("Remove")) {
                 int id = Integer.parseInt(sentence.substring(6));
 
@@ -150,24 +151,29 @@ public class ClientRecivingThread extends Thread {
                 int x = Integer.parseInt(parts[3]);
                 int y = Integer.parseInt(parts[4]);
 
-
                 System.out.println(gameScene.getPlayerMP().getUsername());
                 System.out.println(username);
                 System.out.println(!username.equals(gameScene.getPlayerMP().getUsername()));
                 if (!username.equals(gameScene.getPlayerMP().getUsername())) {
                     gameScene.teleportPlayer(username, mapName, x, y);
                 }
+            } else if (sentence.startsWith("EnterMaze")) {
+                String username = sentence.substring(9);
+
+                if (!username.equals(clientPlayer.getUsername()) && gameScene.getCurrentMap().equals("Lobby")) {
+                    gameScene.getMap().removePlayer(username);
+                }
+
             } else if (sentence.startsWith("Chat")) {
                 String[] parts = sentence.split(",");
 
                 String username = parts[1];
                 String message = parts[2];
 
-
-                if (username.equals(clientPlayer.getUsername())) {
-                    gameScene.getPlayerMP().getDialogText().loadImage(message);
-                } else {
-                    gameScene.getPlayer(username).getDialogText().loadImage(message);
+                if (!username.equals(clientPlayer.getUsername())) {
+                    System.out.println("Chat: " + username + " " + message);
+                    BufferedImage chatImage = gameScene.getMap().getPlayer(username).getDialogText().loadImage(message);
+                    gameScene.getMap().getPlayer(username).setChatImage(chatImage);
                 }
             } else if (sentence.startsWith("Leaderboard")) {
 
@@ -182,6 +188,19 @@ public class ClientRecivingThread extends Thread {
 
                     gameScene.getLeaderBoard().add(username, score);
                 }
+            } else if (sentence.startsWith("Maze")) {
+                String map = sentence.substring(4);
+
+                gameScene.getMazeMap().clear();
+                gameScene.getPlayerMP().setX(0);
+                gameScene.getPlayerMP().setY(0);
+                gameScene.getMazeMap().readMap(map, () -> {
+                    gameScene.changeToMazeMap();
+                    gameScene.getPlayerMP().setX(50);
+                    gameScene.getPlayerMP().setY(50);
+                    Client.getGameClient().sendToServer(new Protocol().teleportPacket(gameScene.getPlayerMP().getUsername(), gameScene.currentMap, gameScene.getPlayerMP().getX(), gameScene.getPlayerMP().getY()));
+                });
+
             } else if (sentence.startsWith("Exit")) {
                 String username = sentence.substring(4, sentence.length());
 

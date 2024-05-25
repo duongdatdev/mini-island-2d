@@ -50,7 +50,6 @@ public class ChatPanel extends JPanel implements ActionListener {
             playerMP.setChatImage(playerMP.getDialogText().loadImage(message));
 
             // Send the message to the server
-
             client.sendToServer(new Protocol().chatPacket(gameScene.getPlayerMP().getUsername(),message));
         }
 

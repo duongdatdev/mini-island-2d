@@ -11,6 +11,7 @@ public class KeyHandler implements KeyListener {
         down = false;
         left = false;
         right = false;
+        space = false;
     }
 
     @Override
@@ -70,6 +71,14 @@ public class KeyHandler implements KeyListener {
         }
     }
 
+    public void reset() {
+        up = false;
+        down = false;
+        left = false;
+        right = false;
+        space = false;
+    }
+
     public boolean isUp() {
         return up;
     }
@@ -84,6 +93,14 @@ public class KeyHandler implements KeyListener {
 
     public boolean isRight() {
         return right;
+    }
+
+    public boolean isSpace() {
+        return space;
+    }
+
+    public void setSpace(boolean space) {
+        this.space = space;
     }
 
     public void setUp(boolean up) {

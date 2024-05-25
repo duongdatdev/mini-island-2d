@@ -1,26 +1,23 @@
 package main;
 
 import collision.Collision;
-import font.CustomFont;
+import maps.maze.MazeMap;
 import maps.pvp.PvpMap;
 import network.client.Client;
 import network.client.Protocol;
 import network.entitiesNet.PlayerMP;
 import network.leaderBoard.LeaderBoard;
-import objects.entities.NPC;
 import objects.entities.Player;
 import input.KeyHandler;
 import maps.Map;
 import panels.chat.ChatPanel;
+import panels.loading.LoadingPanel;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class GameScene extends JPanel implements Runnable {
     //Screen settings
@@ -34,15 +31,17 @@ public class GameScene extends JPanel implements Runnable {
 
     //Map
     public String currentMap = "lobby";
-
     private PvpMap pvpMap;
+    private Map map;
+    private MazeMap mazeMap;
+
+    //Scene
+    private JPanel loadingPanel;
 
     //NPC
-    private NPC pvpNPC;
-    CustomButton teleportButton;
-
-    private NPC topNPC;
+    CustomButton teleportButtonPvpNPC;
     CustomButton topButton;
+    CustomButton teleportButtonMazeNPC;
 
     //FPS
     private final double FPS = 90.0;
@@ -52,7 +51,6 @@ public class GameScene extends JPanel implements Runnable {
 
     private KeyHandler keyHandler;
     private Player player;
-    private Map map;
 
     //Network
     private PlayerMP playerMP;
@@ -72,23 +70,32 @@ public class GameScene extends JPanel implements Runnable {
     //Chat
     private ChatPanel chatPanel;
 
+    private static GameScene instance;
+
+    public static GameScene getInstance() {
+        if (instance == null) {
+            instance = new GameScene(true);
+        }
+        return instance;
+    }
+
     public GameScene(boolean isRunning) {
         keyHandler = new KeyHandler();
         this.addKeyListener(keyHandler);
 
 
         //NPC
-        try {
-            pvpNPC = new NPC("PvP", 1000, 1000, ImageIO.read(getClass().getResource("/Maps/Pvp/PvpNPC.png")));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            topNPC = new NPC("Top 20", 1693, 535, ImageIO.read(getClass().getResource("/NPC/top20NPC.png")));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            pvpNPC = new NPC("PvP", 1000, 1000, ImageIO.read(getClass().getResource("/Maps/Pvp/PvpNPC.png")));
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//        try {
+//            topNPC = new NPC("Top 20", 1693, 535, ImageIO.read(getClass().getResource("/NPC/top20NPC.png")));
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
 
         collision = new Collision(this);
 
@@ -98,10 +105,13 @@ public class GameScene extends JPanel implements Runnable {
 
         playerMP = new PlayerMP(player);
 
-
+        //Maps
         map = new Map(this);
-
         pvpMap = new PvpMap(this);
+        mazeMap = new MazeMap(this);
+
+        //Loading
+        loadingPanel = new LoadingPanel();
 
         players = map.players;
 
@@ -137,11 +147,11 @@ public class GameScene extends JPanel implements Runnable {
             }
         });
 
-        teleportButton = new CustomButton("Teleport");
+        teleportButtonPvpNPC = new CustomButton("Teleport");
 
-        teleportButton.setBounds(screenWidth - 100, 20, 100, 50);
-        teleportButton.setVisible(false);
-        teleportButton.addActionListener(new ActionListener() {
+        teleportButtonPvpNPC.setBounds((screenWidth + 100) / 2, screenHeight - 100, 100, 50);
+        teleportButtonPvpNPC.setVisible(false);
+        teleportButtonPvpNPC.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 switch (currentMap) {
@@ -165,8 +175,36 @@ public class GameScene extends JPanel implements Runnable {
                 requestFocusInWindow();
             }
         });
-        teleportButton.setVisible(false);
-        add(teleportButton);
+
+        teleportButtonMazeNPC = new CustomButton("Teleport");
+
+        teleportButtonPvpNPC.setVisible(true);
+
+        teleportButtonMazeNPC.setBounds((screenWidth + 100) / 2, screenHeight - 100, 100, 50);
+        teleportButtonMazeNPC.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                switch (currentMap) {
+                    case "lobby":
+                        changeToLoadingScene();
+                        currentMap = "loading";
+
+                        Client.getGameClient().sendToServer(new Protocol().enterMazePacket(playerMP.getUsername()));
+                        break;
+                    case "maze":
+                        player.setWorldX(1693);
+                        player.setWorldY(535);
+                        currentMap = "lobby";
+                        mazeMap.removeAllPlayers();
+
+                        Client.getGameClient().sendToServer(new Protocol().teleportPacket(playerMP.getUsername(), currentMap, player.getWorldX(), player.getWorldY()));
+                        break;
+                }
+                requestFocusInWindow();
+            }
+        });
+
+        add(teleportButtonPvpNPC);
 
         setLayout(null);
 
@@ -198,7 +236,10 @@ public class GameScene extends JPanel implements Runnable {
 
         add(chatButton);
 
+        add(teleportButtonMazeNPC);
+
         init();
+        requestFocusInWindow();
     }
 
     private void init() {
@@ -232,7 +273,7 @@ public class GameScene extends JPanel implements Runnable {
 
             delta += (currentTime - lastTime) / drawInterval;
 
-            timer += currentTime - lastTime;
+//            timer += currentTime - lastTime;
 
             lastTime = currentTime;
 
@@ -242,18 +283,6 @@ public class GameScene extends JPanel implements Runnable {
                 delta--;
             }
 
-            if (pvpNPC.isPlayerNear(player)) {
-                teleportButton.setVisible(true);
-            } else {
-                teleportButton.setVisible(false);
-            }
-
-            if (topNPC.isPlayerNear(player)) {
-                topButton.setVisible(true);
-            } else {
-                if (topButton.isVisible())
-                    topButton.setVisible(false);
-            }
 //            if (timer >= 1000000000) {
 //                fps = drawCount;
 //                drawCount = 0;
@@ -277,6 +306,29 @@ public class GameScene extends JPanel implements Runnable {
     public void update() {
         player.update();
         playerMP.update();
+
+        if (map.getPvpNPC().isPlayerNear(player)) {
+            teleportButtonPvpNPC.setVisible(true);
+        } else {
+            teleportButtonPvpNPC.setVisible(false);
+        }
+
+        if (map.getTopNPC().isPlayerNear(player)) {
+            topButton.setVisible(true);
+        } else {
+            if (topButton.isVisible()) {
+                topButton.setVisible(false);
+            }
+            if (leaderBoard.isVisible()) {
+                leaderBoard.setVisible(false);
+            }
+        }
+
+        if (map.getMazeNPC().isPlayerNear(player)) {
+            teleportButtonMazeNPC.setVisible(true);
+        } else {
+            teleportButtonMazeNPC.setVisible(false);
+        }
     }
 
     public int drawChat = 0;
@@ -298,14 +350,53 @@ public class GameScene extends JPanel implements Runnable {
                 case "pvp":
                     pvpMap.draw(g2d, tileSize);
                     break;
+                case "maze":
+                    mazeMap.draw(g2d, tileSize);
             }
-
-            pvpNPC.checkDraw(player, g2d, tileSize);
-            topNPC.checkDraw(player, g2d, tileSize * 2);
 
             playerMP.render(g2d, tileSize);
 
+            int worldX = playerMP.getX();
+            int worldY = playerMP.getY();
+
+            int screenX = worldX - getPlayer().getWorldX() + getPlayer().getScreenX();
+            int screenY = worldY - getPlayer().getWorldY() + getPlayer().getScreenY();
+
+            if (worldX > getPlayer().getWorldX() - getPlayer().getScreenX() - tileSize * 2
+                    && worldX < getPlayer().getWorldX() + getPlayer().getScreenX() + tileSize * 2
+                    && worldY > getPlayer().getWorldY() - getPlayer().getScreenY() - tileSize * 2
+                    && worldY < getPlayer().getWorldY() + getPlayer().getScreenY() + tileSize * 2) {
+                for (int j = 0; j < 1000; j++) {
+                    if (playerMP.getBomb()[j] != null) {
+                        if (playerMP.getBomb()[j].stop == false) {
+                            playerMP.getBomb()[j].setPosiX(screenX);
+                            playerMP.getBomb()[j].setPosiY(screenY);
+                            g2d.drawImage(playerMP.getBomb()[j].getBomBufferdImg(), playerMP.getBomb()[j].getPosiX(), playerMP.getBomb()[j].getPosiY(), 10, 10, this);
+                        }
+                    }
+                }
+            }
+
+//            for (int j = 0; j < 1000; j++) {
+//                if (playerMP.getBomb()[j] != null) {
+//                    if (playerMP.getBomb()[j].stop == false) {
+//                        g2d.drawImage(playerMP.getBomb()[j].getBomBufferdImg(), playerMP.getBomb()[j].getPosiX(), playerMP.getBomb()[j].getPosiY(), this);
+//                    }
+//                }
+//            }
+
         }
+    }
+
+    public void changeToLoadingScene() {
+        loadingPanel.setSize(screenWidth, screenHeight);
+        add(loadingPanel);
+
+    }
+
+    public void changeToMazeMap() {
+        remove(loadingPanel);
+        currentMap = "maze";
     }
 
     public void registerNewPlayer(PlayerMP newPlayer) {
@@ -395,6 +486,7 @@ public class GameScene extends JPanel implements Runnable {
         return switch (currentMap) {
             case "lobby" -> map;
             case "pvp" -> pvpMap;
+            case "maze" -> mazeMap;
             default -> map;
         };
     }
@@ -433,5 +525,17 @@ public class GameScene extends JPanel implements Runnable {
 
     public void setCurrentMap(String currentMap) {
         this.currentMap = currentMap;
+    }
+
+    public ArrayList<PlayerMP> getPlayers() {
+        return pvpMap.players;
+    }
+
+    public MazeMap getMazeMap() {
+        return mazeMap;
+    }
+
+    public void setMazeMap(MazeMap mazeMap) {
+        this.mazeMap = mazeMap;
     }
 }
