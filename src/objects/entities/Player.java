@@ -46,7 +46,7 @@ public class Player extends Entity {
         this.id = id;
         this.worldX = x;
         this.worldY = y;
-        this.direction = "DOWN";
+        this.direction = "STAND";
 
 //        setDefaultPosition();
 //        setDefaultSpeed();
@@ -81,20 +81,26 @@ public class Player extends Entity {
     public void update() {
 
         if (isMove()) {
+            int futureX = worldX;
+            int futureY = worldY;
 
-            System.out.println("Player moved");
             if (keyHandler.isUp()) {
                 direction = "UP";
+                futureY -= speed;
             }
             if (keyHandler.isDown()) {
                 direction = "DOWN";
+                futureY += speed;
             }
             if (keyHandler.isLeft()) {
                 direction = "LEFT";
+                futureX -= speed;
             }
             if (keyHandler.isRight()) {
                 direction = "RIGHT";
+                futureX += speed;
             }
+
             count = 1;
             collision = false;
 
@@ -102,22 +108,10 @@ public class Player extends Entity {
 //            gameScene.getCollisionChecker().checkCollision(this, gameScene.getMap().getNpcs());
 
             if (!collision) {
-                if (keyHandler.isUp()) {
-                    worldY -= speed;
-                }
-                if (keyHandler.isDown()) {
-                    worldY += speed;
-                }
-                if (keyHandler.isLeft()) {
-                    worldX -= speed;
-                }
-                if (keyHandler.isRight()) {
-                    worldX += speed;
-                }
+                worldX = futureX;
+                worldY = futureY;
             }
-            else {
-                keyHandler.reset();
-            }
+
         } else if (isSpace()) {
             System.out.println("Player shot");
             gameScene.getPlayerMP().shot();

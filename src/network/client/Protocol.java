@@ -52,6 +52,11 @@ public class Protocol {
         return message;
     }
 
+    public String winMazePacket(String username) {
+        message = "WinMaze" + username;
+        return message;
+    }
+
     public String PlayerExitMapPacket(String username, String map) {
         message = "ExitMap" + username + "," + map;
         return message;

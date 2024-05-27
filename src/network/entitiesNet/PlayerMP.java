@@ -6,6 +6,7 @@ import objects.entities.Bomb;
 import objects.entities.Player;
 import panels.chat.DialogText;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.DataOutputStream;
@@ -28,6 +29,7 @@ public class PlayerMP {
     private DataOutputStream writer;
 
     private BufferedImage chatImage;
+    private Timer chatImageTimer;
 
     private DialogText dialogText;
 
@@ -39,6 +41,9 @@ public class PlayerMP {
         writer = Client.getGameClient().getWriter();
 
         dialogText = new DialogText();
+
+        chatImageTimer = new Timer(2000, e -> clearChatImage());
+        chatImageTimer.setRepeats(false);
     }
 
     public PlayerMP(String username, int x, int y, int direction, int id) {
@@ -50,6 +55,9 @@ public class PlayerMP {
         this.player = new Player(username, x, y, direction, id);
 
         dialogText = new DialogText();
+
+        chatImageTimer = new Timer(2000, e -> clearChatImage());
+        chatImageTimer.setRepeats(false);
     }
 
     //Counter for the number of times the player has moved
@@ -134,6 +142,11 @@ public class PlayerMP {
 
     }
 
+    public void winMaze()
+    {
+        Client.getGameClient().sendToServer(new Protocol().winMazePacket(username));
+    }
+
     public void shot()
     {
         bomb[curBomb]=new Bomb(this.getX(),this.getY(),lastDirection);
@@ -163,6 +176,10 @@ public class PlayerMP {
             case "RIGHT" -> direction = 4;
         }
         return direction;
+    }
+
+    private void clearChatImage() {
+        this.chatImage = null;
     }
 
     public void setDirection(int direction) {
@@ -240,6 +257,7 @@ public class PlayerMP {
 
     public void setChatImage(BufferedImage chatImage) {
         this.chatImage = chatImage;
+        chatImageTimer.restart();
     }
 
     public DialogText getDialogText() {
@@ -249,4 +267,5 @@ public class PlayerMP {
     public void setDialogText(DialogText dialogText) {
         this.dialogText = dialogText;
     }
+
 }

@@ -144,10 +144,9 @@ public class Map {
 
                         BufferedImage chatImage = playerMP.getChatImage();
                         if (chatImage != null) {
-                            System.out.println("Drawing chat image");
                             int chatImageWidth = chatImage.getWidth();
                             int chatImageHeight = chatImage.getHeight();
-                            g2d.drawImage(chatImage, screenX, screenY - 20 - chatImageHeight, chatImageWidth, chatImageHeight, null);
+                            g2d.drawImage(chatImage, screenX - 50, screenY - 20 - chatImageHeight, chatImageWidth, chatImageHeight, null);
                         }
                     }
 

@@ -21,6 +21,7 @@ public class MazeMap extends Map {
         char space = ' ';
         char star = '*';
         char hole = 'O';
+        char finishLine = '-';
 
         try {
             String[] lines = map.split("/");
@@ -35,20 +36,20 @@ public class MazeMap extends Map {
                         System.out.print(mapTileNum[col][row] + " ");
                         col++;
                     } else if (charArray[col] == space) {
-                        mapTileNum[col][row] = 2;
+                        mapTileNum[col][row] = 3;
                         System.out.print(mapTileNum[col][row] + " ");
                         col++;
                     } else if (charArray[col] == star) {
-                        mapTileNum[col][row] = 2;
-                        System.out.print(mapTileNum[col][row] + " ");
-                        col++;
-                    }
-                    else if (charArray[col] == hole) {
                         mapTileNum[col][row] = 3;
                         System.out.print(mapTileNum[col][row] + " ");
                         col++;
                     }
-                    else {
+                    else if (charArray[col] == hole) {
+                        mapTileNum[col][row] = 4;
+                        System.out.print(mapTileNum[col][row] + " ");
+                        col++;
+                    }
+                    else if (charArray[col] == finishLine){
                         mapTileNum[col][row] = 2;
                         System.out.print(mapTileNum[col][row] + " ");
                         col++;
@@ -72,8 +73,14 @@ public class MazeMap extends Map {
 
 @Override
 public void setTileType(int i) {
-    if (i == 3) {
+    if (i == 4) {
         tiles[i].setType(TileType.Hole);
+    }
+    else if(i == 0){
+        tiles[i].setType(TileType.Wall);
+    }
+    else if(i == 2){
+        tiles[i].setType(TileType.FinishLine);
     }
 }
 

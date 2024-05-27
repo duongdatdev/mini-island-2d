@@ -49,4 +49,12 @@ public abstract class Entity extends GameObject {
     public void setWorldY(int worldY) {
         this.worldY = worldY;
     }
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
+    }
 }

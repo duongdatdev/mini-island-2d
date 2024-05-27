@@ -9,7 +9,6 @@ public class Collision {
 
     public Collision(GameScene gameScene) {
         this.gameScene = gameScene;
-
     }
 
     public void checkTile(Entity entity) {
@@ -25,51 +24,41 @@ public class Collision {
 
         int tileNum1, tileNum2;
 
-        switch (entity.direction) {
+        switch (entity.getDirection()) {
             case "UP":
                 entityTopRow = (entityTopWorldY - entity.getSpeed()) / gameScene.getTileSize();
                 tileNum1 = gameScene.getMap().getMapTileNum()[entityLeftCol][entityTopRow];
                 tileNum2 = gameScene.getMap().getMapTileNum()[entityRightCol][entityTopRow];
-
-                if (checkTile(tileNum1, tileNum2, TileType.Wall)) {
-                    entity.setCollision(true);
-                } else if (checkTile(tileNum1, tileNum2, TileType.Water)) {
-                    handlerCollisionWater(entity, tileNum1, tileNum2);
-                }
+                handleCollision(entity, tileNum1, tileNum2);
                 break;
             case "DOWN":
                 entityBottomRow = (entityBottomWorldY + entity.getSpeed()) / gameScene.getTileSize();
                 tileNum1 = gameScene.getMap().getMapTileNum()[entityLeftCol][entityBottomRow];
                 tileNum2 = gameScene.getMap().getMapTileNum()[entityRightCol][entityBottomRow];
-
-                if (checkTile(tileNum1, tileNum2, TileType.Wall)) {
-                    entity.setCollision(true);
-                } else if (checkTile(tileNum1, tileNum2, TileType.Water)) {
-                    handlerCollisionWater(entity, tileNum1, tileNum2);
-                }
+                handleCollision(entity, tileNum1, tileNum2);
                 break;
             case "LEFT":
                 entityLeftCol = (entityLeftWorldX - entity.getSpeed()) / gameScene.getTileSize();
                 tileNum1 = gameScene.getMap().getMapTileNum()[entityLeftCol][entityTopRow];
                 tileNum2 = gameScene.getMap().getMapTileNum()[entityLeftCol][entityBottomRow];
-
-                if (checkTile(tileNum1, tileNum2, TileType.Wall)) {
-                    entity.setCollision(true);
-                } else if (checkTile(tileNum1, tileNum2, TileType.Water)) {
-                    handlerCollisionWater(entity, tileNum1, tileNum2);
-                }
+                handleCollision(entity, tileNum1, tileNum2);
                 break;
             case "RIGHT":
                 entityRightCol = (entityRightWorldX + entity.getSpeed()) / gameScene.getTileSize();
                 tileNum1 = gameScene.getMap().getMapTileNum()[entityRightCol][entityTopRow];
                 tileNum2 = gameScene.getMap().getMapTileNum()[entityRightCol][entityBottomRow];
-
-                if (checkTile(tileNum1, tileNum2, TileType.Wall)) {
-                    entity.setCollision(true);
-                } else if (checkTile(tileNum1, tileNum2, TileType.Water)) {
-                    handlerCollisionWater(entity, tileNum1, tileNum2);
-                }
+                handleCollision(entity, tileNum1, tileNum2);
                 break;
+        }
+    }
+
+    private void handleCollision(Entity entity, int tileNum1, int tileNum2) {
+        if (checkTile(tileNum1, tileNum2, TileType.Wall)) {
+            entity.setCollision(true);
+        } else if (checkTile(tileNum1, tileNum2, TileType.Water)) {
+            handleCollisionWater(entity);
+        } else if (checkTile(tileNum1, tileNum2, TileType.FinishLine)) {
+            gameScene.getPlayerMP().winMaze();
         }
     }
 
@@ -77,18 +66,17 @@ public class Collision {
         return gameScene.getMap().getTiles()[tileNum1].getType() == tileType || gameScene.getMap().getTiles()[tileNum2].getType() == tileType;
     }
 
-    private void handlerCollisionWater(Entity entity, int tileNum1, int tileNum2) {
+    private void handleCollisionWater(Entity entity) {
         entity.setWorldX(1000);
         entity.setWorldY(1000);
         gameScene.getPlayerMP().updatePlayerInServer();
     }
 
-    public void checkCollision(Entity entity,Entity[] entities) {
-        for (Entity entity1 : entities) {
-            if (entity.getHitBox().intersects(entity1.getHitBox())) {
+    public void checkCollision(Entity entity, Entity[] entities) {
+        for (Entity otherEntity : entities) {
+            if (entity.getHitBox().intersects(otherEntity.getHitBox())) {
                 entity.setCollision(true);
             }
         }
-
     }
 }

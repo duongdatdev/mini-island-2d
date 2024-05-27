@@ -339,7 +339,6 @@ public class GameScene extends JPanel implements Runnable {
         Graphics2D g2d = (Graphics2D) g;
 
         g2d.setFont(new Font("Arial", Font.BOLD, 20));
-//        playerMP.render(g2d, tileSize);
         isRunning = true;
 
         if (isRunning) {
