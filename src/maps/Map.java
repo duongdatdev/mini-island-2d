@@ -111,6 +111,7 @@ public class Map {
                         && worldX < gameScene.getPlayer().getWorldX() + gameScene.getPlayer().getScreenX() + tileSize * 2
                         && worldY > gameScene.getPlayer().getWorldY() - gameScene.getPlayer().getScreenY() - tileSize * 2
                         && worldY < gameScene.getPlayer().getWorldY() + gameScene.getPlayer().getScreenY() + tileSize * 2) {
+
                     g2d.drawImage(tiles[tileNum].getImage(), screenX, screenY, tileSize, tileSize, null);
 
                 }
@@ -139,6 +140,7 @@ public class Map {
                             && worldX < gameScene.getPlayer().getWorldX() + gameScene.getPlayer().getScreenX() + tileSize * 2
                             && worldY > gameScene.getPlayer().getWorldY() - gameScene.getPlayer().getScreenY() - tileSize * 2
                             && worldY < gameScene.getPlayer().getWorldY() + gameScene.getPlayer().getScreenY() + tileSize * 2) {
+
                         g2d.drawImage(playerMP.getPlayer().currentSprite(), screenX, screenY, tileSize, tileSize, null);
                         g2d.drawString(playerMP.getUsername(), screenX, screenY - 10);
 
@@ -149,27 +151,24 @@ public class Map {
                             g2d.drawImage(chatImage, screenX - 50, screenY - 20 - chatImageHeight, chatImageWidth, chatImageHeight, null);
                         }
                     }
-
-
-//                    if (gameScene.getChatPanel().getChatImage() != null && gameScene.drawChat < 120) {
-//                        int chatImageWidth = gameScene.getChatPanel().getChatImage().getWidth();
-//                        int chatImageHeight = gameScene.getChatPanel().getChatImage().getHeight();
-//                        g2d.drawImage(gameScene.getChatPanel().getChatImage(), screenX, screenY - 20, chatImageWidth, chatImageHeight, null);
-//                        gameScene.drawChat++;
-//                    } else {
-//                        gameScene.getChatPanel().setChatImage(null);
-//                        gameScene.drawChat = 0;
-//                    }
                 }
             }
         }
+    }
+
+    public void setNPCLocation(){
+        pvpNPC.setWorldX(1000);
+        pvpNPC.setWorldY(1000);
+        topNPC.setWorldX(1693);
+        topNPC.setWorldY(535);
+        mazeNPC.setWorldX(2092);
+        mazeNPC.setWorldY(1075);
     }
 
 
     /*
      * This method is used to render the NPC on the map
      * @param g2d
-     * @param tileSize
      */
     protected void renderNPC(Graphics2D g2d) {
         pvpNPC.checkDraw(player.getPlayer(), g2d);

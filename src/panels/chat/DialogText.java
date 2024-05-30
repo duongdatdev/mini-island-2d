@@ -18,6 +18,10 @@ public class DialogText {
     private BufferedImage threeLineImage;
 
     public DialogText() {
+        resetImage();
+    }
+
+    public void resetImage() {
         try {
             oneLineImage = ImageIO.read(getClass().getResourceAsStream("/Chat/1line.png"));
             twoLineImage = ImageIO.read(getClass().getResourceAsStream("/Chat/2line.png"));
@@ -26,7 +30,6 @@ public class DialogText {
             System.out.println("Error loading chat images");
             throw new RuntimeException(e);
         }
-
     }
 
     public static String breakIntoLines(String text) {
@@ -54,7 +57,7 @@ public class DialogText {
         String[] lines = brokenText.split("\n");
         System.out.println(lines.length);
 
-        System.out.println("Chat image loaded");
+        resetImage();
         Graphics g;
         int textHeight;
         switch (lines.length) {
@@ -65,7 +68,7 @@ public class DialogText {
                 g.setColor(Color.BLACK);
                 textHeight = g.getFontMetrics().getHeight();
 
-                g.setFont(new Font("Arial", Font.BOLD,10));
+                g.setFont(new Font("Arial", Font.BOLD,13));
                 g.drawString(lines[0], 10, textHeight + 5);
                 break;
             case 2:
@@ -75,7 +78,7 @@ public class DialogText {
                 g.setColor(Color.BLACK);
                 textHeight = g.getFontMetrics().getHeight();
 
-                g.setFont(new Font("Arial", Font.BOLD,10));
+                g.setFont(new Font("Arial", Font.BOLD,13));
                 g.drawString(lines[0], 10, textHeight + 5);
                 g.drawString(lines[1], 10, textHeight * 2 + 5);
                 break;
@@ -86,7 +89,7 @@ public class DialogText {
                 g.setColor(Color.BLACK);
                 textHeight = g.getFontMetrics().getHeight();
 
-                g.setFont(new Font("Arial", Font.PLAIN,10));
+                g.setFont(new Font("Arial", Font.PLAIN,13));
                 g.drawString(lines[0], 10, textHeight +5);
                 g.drawString(lines[1], 10, textHeight * 2 + 5);
                 g.drawString(lines[2], 10, textHeight * 3 + 5);
@@ -98,7 +101,7 @@ public class DialogText {
                 g.setColor(Color.BLACK);
                 textHeight = g.getFontMetrics().getHeight();
 
-                g.setFont(new Font("Arial", Font.PLAIN,10));
+                g.setFont(new Font("Arial", Font.PLAIN,13));
                 g.drawString(lines[0], 10, textHeight + 5);
         }
         return chatImage;

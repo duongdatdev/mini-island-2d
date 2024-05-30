@@ -3,17 +3,14 @@ package objects.entities;
 import imageRender.ImageHandler;
 import input.KeyHandler;
 import main.GameScene;
+import maps.TileType;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 public class Player extends Entity {
     private int screenX;
     private int screenY;
-    private int scale = 1;
+    private final int scale = 1;
     private KeyHandler keyHandler;
     private int id;
     private int spriteIndex = 0;
@@ -31,10 +28,10 @@ public class Player extends Entity {
         this.gameScene = gameScene;
 
         hitBox = new Rectangle();
-        hitBox.width = gameScene.getTileSize() - 16;
-        hitBox.height = gameScene.getTileSize() - 16;
-        hitBox.x = 8;
-        hitBox.y = 16;
+        hitBox.width = 28;
+        hitBox.height = 18;
+        hitBox.x = 10;
+        hitBox.y = 24;
 
         setDefaultPosition();
         setDefaultSpeed();
@@ -61,11 +58,11 @@ public class Player extends Entity {
         standingImages = ImageHandler.loadAssets("/player/Character_Stand.png", 32, 32);
     }
 
-    private void setDefaultPosition() {
+    public void setDefaultPosition() {
         screenX = gameScene.getScreenWidth() / 2 - gameScene.getTileSize() * scale / 2;
         screenY = gameScene.getScreenHeight() / 2 - gameScene.getTileSize() * scale / 2;
-        worldX = 1000;
-        worldY = 1000;
+        worldX = 1645;
+        worldY = 754;
     }
 
     private void setDefaultSpeed() {
@@ -81,6 +78,7 @@ public class Player extends Entity {
     public void update() {
 
         if (isMove()) {
+
             int futureX = worldX;
             int futureY = worldY;
 
@@ -103,14 +101,26 @@ public class Player extends Entity {
 
             count = 1;
             collision = false;
+            flagUpdate = true;
 
-            gameScene.getCollisionChecker().checkTile(this);
-//            gameScene.getCollisionChecker().checkCollision(this, gameScene.getMap().getNpcs());
+            int finalFutureX = futureX;
+            int finalFutureY = futureY;
+            gameScene.getCollisionChecker().checkTile(this, () -> {
+                if (!collision) {
+                    // Check if the current tile is a wall
+                    int currentTileNum = gameScene.getMap().getMapTileNum()[finalFutureX / gameScene.getTileSize()][finalFutureY / gameScene.getTileSize()];
+                    if (gameScene.getMap().getTiles()[currentTileNum].getType() != TileType.Wall) {
+                        // Move player in the opposite direction
+                        if (flagUpdate) {
+                            worldX = finalFutureX;
+                            worldY = finalFutureY;
+                        }
+                    }
+                } else {
+                    direction = "STAND";
+                }
+            });
 
-            if (!collision) {
-                worldX = futureX;
-                worldY = futureY;
-            }
 
         } else if (isSpace()) {
             System.out.println("Player shot");
@@ -123,22 +133,10 @@ public class Player extends Entity {
             count = 0;
         }
 
-        // update the position of each bullet
-//        Iterator<Bullet> iterator = bullets.iterator();
-//        while (iterator.hasNext()) {
-//            Bullet bullet = iterator.next();
-//            bullet.move();
-////            if (bullet.isOutOfScreen()) { // assuming you have this method to check if bullet is out of screen
-////                iterator.remove();
-////            }
-//        }
     }
 
     public void render(Graphics2D g2d, int tileSize) {
         g2d.drawImage(currentSprite(), screenX, screenY, tileSize * scale, tileSize * scale, null);
-//        for (Bullet bullet : bullets) {
-//            bullet.render(g2d,, 10);
-//        }
     }
 
     public boolean isSpace() {
@@ -150,7 +148,7 @@ public class Player extends Entity {
 //        bullets.add(bullet);
 //    }
 
-        public BufferedImage currentSprite() {
+    public BufferedImage currentSprite() {
         BufferedImage playerImage = null;
         countFrames++;
         if (countFrames > 11) {
@@ -243,14 +241,6 @@ public class Player extends Entity {
         this.id = id;
     }
 
-    public String getDirection() {
-        return direction;
-    }
-
-    public void setDirection(String direction) {
-        this.direction = direction;
-    }
-
     public int getId() {
         return id;
     }
@@ -271,19 +261,8 @@ public class Player extends Entity {
         this.screenY = screenY;
     }
 
-    public void setWorldX(int worldX) {
-        this.worldX = worldX;
-    }
-
-    public void setWorldY(int worldY) {
-        this.worldY = worldY;
-    }
-
-    public int getSpeed() {
-        return speed;
-    }
-
     public void setSpeed(int speed) {
+        this.speed = speed;
     }
 
     @Override

@@ -4,6 +4,7 @@ import main.GameScene;
 import maps.Map;
 import maps.TileType;
 
+import java.awt.*;
 import java.io.*;
 
 public class MazeMap extends Map {
@@ -84,7 +85,11 @@ public void setTileType(int i) {
     }
 }
 
-public void clear() {
+    @Override
+    protected void renderNPC(Graphics2D g2d) {
+    }
+
+    public void clear() {
     for (int i = 0; i < mapTileCol; i++) {
         for (int j = 0; j < mapTileRow; j++) {
             mapTileNum[i][j] = 0;

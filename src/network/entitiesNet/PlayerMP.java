@@ -1,5 +1,6 @@
 package network.entitiesNet;
 
+import main.GameScene;
 import network.client.Client;
 import network.client.Protocol;
 import objects.entities.Bomb;
@@ -108,6 +109,11 @@ public class PlayerMP {
         }
     }
 
+    public void updateLocation(){
+        x = player.getWorldX();
+        y = player.getWorldY();
+    }
+
     public void updatePlayerInServer() {
         Client.getGameClient().sendToServer(new Protocol().UpdatePacket(username, x, y, direction));
     }
@@ -123,6 +129,7 @@ public class PlayerMP {
         int usernameX = centerX - stringWidth / 2;
 
         // Draw the username at the calculated position
+        g2d.setFont(new Font("Arial", Font.BOLD, 20));
         g2d.drawString(username, usernameX, player.getScreenY());
         player.render(g2d, tileSize);
         if (chatImage != null) {
@@ -142,21 +149,16 @@ public class PlayerMP {
 
     }
 
-    public void winMaze()
-    {
-        Client.getGameClient().sendToServer(new Protocol().winMazePacket(username));
-    }
-
     public void shot()
     {
-        bomb[curBomb]=new Bomb(this.getX(),this.getY(),lastDirection);
-//
+        if (direction == 1 || direction == 2 || direction == 3 || direction == 4)
+            bomb[curBomb]=new Bomb(this.getX(),this.getY(),direction);
+        else
+            bomb[curBomb]=new Bomb(this.getX(),this.getY(),lastDirection);
+
         bomb[curBomb].startBombThread(true);
-//
+
         curBomb++;
-//        player.shot();
-//        Bullet bullet = player.getBullets().get(player.getBullets().size() - 1);
-//        Client.getGameClient().sendToServer(new Protocol().ShotPacket(player.getId(), bullet.getX(), bullet.getY(), bullet.getDirection()));
     }
 
     public void Shot()
@@ -170,10 +172,12 @@ public class PlayerMP {
 
     public int getDirection() {
         switch (player.getDirection()) {
+
             case "DOWN" -> direction = 1;
             case "UP" -> direction = 2;
             case "LEFT" -> direction = 3;
             case "RIGHT" -> direction = 4;
+
         }
         return direction;
     }
@@ -184,6 +188,7 @@ public class PlayerMP {
 
     public void setDirection(int direction) {
         switch (direction) {
+
             case 1 -> player.setDirection("DOWN");
             case 2 -> player.setDirection("UP");
             case 3 -> player.setDirection("LEFT");

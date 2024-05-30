@@ -11,7 +11,10 @@ public class Collision {
         this.gameScene = gameScene;
     }
 
-    public void checkTile(Entity entity) {
+    /**
+     * Check collision with tiles
+     */
+    public void checkTile(Entity entity, Runnable process) {
         int entityLeftWorldX = entity.getWorldX() + entity.getHitBox().x;
         int entityRightWorldX = entity.getWorldX() + entity.getHitBox().x + entity.getHitBox().width;
         int entityTopWorldY = entity.getWorldY() + entity.getHitBox().y;
@@ -29,36 +32,43 @@ public class Collision {
                 entityTopRow = (entityTopWorldY - entity.getSpeed()) / gameScene.getTileSize();
                 tileNum1 = gameScene.getMap().getMapTileNum()[entityLeftCol][entityTopRow];
                 tileNum2 = gameScene.getMap().getMapTileNum()[entityRightCol][entityTopRow];
-                handleCollision(entity, tileNum1, tileNum2);
+
                 break;
             case "DOWN":
                 entityBottomRow = (entityBottomWorldY + entity.getSpeed()) / gameScene.getTileSize();
                 tileNum1 = gameScene.getMap().getMapTileNum()[entityLeftCol][entityBottomRow];
                 tileNum2 = gameScene.getMap().getMapTileNum()[entityRightCol][entityBottomRow];
-                handleCollision(entity, tileNum1, tileNum2);
+
                 break;
             case "LEFT":
                 entityLeftCol = (entityLeftWorldX - entity.getSpeed()) / gameScene.getTileSize();
                 tileNum1 = gameScene.getMap().getMapTileNum()[entityLeftCol][entityTopRow];
                 tileNum2 = gameScene.getMap().getMapTileNum()[entityLeftCol][entityBottomRow];
-                handleCollision(entity, tileNum1, tileNum2);
+
                 break;
             case "RIGHT":
                 entityRightCol = (entityRightWorldX + entity.getSpeed()) / gameScene.getTileSize();
                 tileNum1 = gameScene.getMap().getMapTileNum()[entityRightCol][entityTopRow];
                 tileNum2 = gameScene.getMap().getMapTileNum()[entityRightCol][entityBottomRow];
-                handleCollision(entity, tileNum1, tileNum2);
+
                 break;
+            default:
+                throw new IllegalArgumentException("Invalid direction: " + entity.getDirection());
         }
+
+        handleCollision(entity, tileNum1, tileNum2);
+        process.run();
     }
 
     private void handleCollision(Entity entity, int tileNum1, int tileNum2) {
         if (checkTile(tileNum1, tileNum2, TileType.Wall)) {
             entity.setCollision(true);
+            entity.setFlagUpdate(true);
         } else if (checkTile(tileNum1, tileNum2, TileType.Water)) {
             handleCollisionWater(entity);
+            entity.setFlagUpdate(false);
         } else if (checkTile(tileNum1, tileNum2, TileType.FinishLine)) {
-            gameScene.getPlayerMP().winMaze();
+            gameScene.winMaze();
         }
     }
 
@@ -66,17 +76,24 @@ public class Collision {
         return gameScene.getMap().getTiles()[tileNum1].getType() == tileType || gameScene.getMap().getTiles()[tileNum2].getType() == tileType;
     }
 
+    /*
+     * Handle collision with water
+     */
     private void handleCollisionWater(Entity entity) {
         entity.setWorldX(1000);
         entity.setWorldY(1000);
+
         gameScene.getPlayerMP().updatePlayerInServer();
     }
 
     public void checkCollision(Entity entity, Entity[] entities) {
+        // Check if the entity collides with any other entity
         for (Entity otherEntity : entities) {
+
             if (entity.getHitBox().intersects(otherEntity.getHitBox())) {
                 entity.setCollision(true);
             }
+
         }
     }
 }

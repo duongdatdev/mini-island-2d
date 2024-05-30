@@ -14,6 +14,7 @@ public abstract class Entity extends GameObject {
     public String direction = "STAND";
     protected Rectangle hitBox;
     protected boolean collision = false;
+    protected boolean flagUpdate = true;
 
     public Rectangle getHitBox() {
         return hitBox;
@@ -31,7 +32,7 @@ public abstract class Entity extends GameObject {
     }
 
     public int getSpeed() {
-        return speed;
+        return speed + 2;
     }
 
     public boolean isCollision() {
@@ -56,5 +57,13 @@ public abstract class Entity extends GameObject {
 
     public void setDirection(String direction) {
         this.direction = direction;
+    }
+
+    public boolean isFlagUpdate() {
+        return flagUpdate;
+    }
+
+    public void setFlagUpdate(boolean flagUpdate) {
+        this.flagUpdate = flagUpdate;
     }
 }
