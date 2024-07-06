@@ -23,7 +23,7 @@ public class Protocol {
     }
 
     public String RegisterPacket(String username, String password, String email) {
-        message = "Register" + username + "," + password + "-" + email;
+        message = "player/1/Register" + username + "," + password + "-" + email;
         return message;
     }
 
@@ -59,6 +59,16 @@ public class Protocol {
 
     public String PlayerExitMapPacket(String username, String map) {
         message = "ExitMap" + username + "," + map;
+        return message;
+    }
+
+    public String bulletCollisionPacket(String playerShot, String playerHit) {
+        message = "BulletCollision," + playerShot + "," + playerHit;
+        return message;
+    }
+
+    public String respawnPacket(String username) {
+        message = "Respawn" + username;
         return message;
     }
 

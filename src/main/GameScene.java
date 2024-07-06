@@ -1,8 +1,8 @@
 package main;
 
 import collision.Collision;
-import maps.maze.MazeMap;
-import maps.pvp.PvpMap;
+import maps.MazeMap;
+import maps.PvpMap;
 import network.client.Client;
 import network.client.Protocol;
 import network.entitiesNet.PlayerMP;
@@ -10,8 +10,8 @@ import network.leaderBoard.LeaderBoard;
 import objects.entities.Player;
 import input.KeyHandler;
 import maps.Map;
-import panels.chat.ChatPanel;
-import panels.loading.LoadingPanel;
+import panes.chat.ChatPane;
+import panes.loading.LoadingPane;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,6 +19,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+/**
+ * GameScene class is the main class that handles the game logic and rendering of the game.
+ * It extends JPanel and implements Runnable.
+ */
 public class GameScene extends JPanel implements Runnable {
     //Screen settings
     private final int originalTileSize = 16;
@@ -35,16 +39,17 @@ public class GameScene extends JPanel implements Runnable {
     private Map map;
     private MazeMap mazeMap;
 
+    //Player
+    private boolean isPlayerAlive = true;
+
     //Scene
-    private JPanel loadingPanel;
+    private final JPanel loadingPanel;
 
     //NPC
     CustomButton teleportButtonPvpNPC;
     CustomButton topButton;
     CustomButton teleportButtonMazeNPC;
 
-    //FPS
-    private final double FPS = 90.0;
     private int fps = 0;
 
     private Thread gameThread;
@@ -68,7 +73,7 @@ public class GameScene extends JPanel implements Runnable {
     //Handler for the game scene
 
     //Chat
-    private ChatPanel chatPanel;
+    private ChatPane chatPanel;
 
     private static GameScene instance;
 
@@ -97,7 +102,7 @@ public class GameScene extends JPanel implements Runnable {
         mazeMap = new MazeMap(this);
 
         //Loading
-        loadingPanel = new LoadingPanel();
+        loadingPanel = new LoadingPane();
 
         players = map.players;
 
@@ -106,7 +111,7 @@ public class GameScene extends JPanel implements Runnable {
         init();
 
         //Chat
-        chatPanel = new ChatPanel(this);
+        chatPanel = new ChatPane(this);
 
         chatPanel.setBackground(Color.WHITE);
         chatPanel.setPreferredSize(new Dimension(200, 100));
@@ -147,10 +152,13 @@ public class GameScene extends JPanel implements Runnable {
                         currentMap = "pvp";
                         map.removeAllPlayers();
 
+                        playerMP.setAlive(true);
+                        sendRespawnPacket();
                         Client.getGameClient().sendToServer(new Protocol().teleportPacket(playerMP.getUsername(), currentMap, player.getWorldX(), player.getWorldY()));
                         break;
                     case "pvp":
                         player.setDefaultPosition();
+                        isPlayerAlive = true;
                         currentMap = "lobby";
                         pvpMap.removeAllPlayers();
 
@@ -180,6 +188,9 @@ public class GameScene extends JPanel implements Runnable {
                         player.setWorldX(1693);
                         player.setWorldY(535);
                         currentMap = "lobby";
+
+                        map.getMazeNPC().setWorldX(2092);
+                        map.getMazeNPC().setWorldY(1075);
                         mazeMap.removeAllPlayers();
 
                         Client.getGameClient().sendToServer(new Protocol().teleportPacket(playerMP.getUsername(), currentMap, player.getWorldX(), player.getWorldY()));
@@ -243,6 +254,8 @@ public class GameScene extends JPanel implements Runnable {
     @Override
     public void run() {
 
+        //FPS
+        double FPS = 90.0;
         double drawInterval = 1000000000 / FPS;
         double delta = 0.0;
         long lastTime = System.nanoTime();
@@ -266,16 +279,6 @@ public class GameScene extends JPanel implements Runnable {
 //                drawCount++;
                 delta--;
             }
-
-//            if (timer >= 1000000000) {
-//                fps = drawCount;
-//                drawCount = 0;
-//                timer = 0;
-//                chatPanel.setChatImage(null);
-//            }
-//            if (timer >= 2000000000) {
-//                chatPanel.setChatImage(null);
-//            }
         }
     }
 
@@ -339,26 +342,39 @@ public class GameScene extends JPanel implements Runnable {
 
             playerMP.render(g2d, tileSize);
 
-            // Render the bomb
+            // Render the bullet
             for (int j = 0; j < 1000; j++) {
-                if (playerMP.getBomb()[j] != null) {
-                    if (!playerMP.getBomb()[j].stop) {
-                        int bombScreenX = playerMP.getBomb()[j].getPosiX() - player.getWorldX() + player.getScreenX();
-                        int bombScreenY = playerMP.getBomb()[j].getPosiY() - player.getWorldY() + player.getScreenY();
-                        g2d.drawImage(playerMP.getBomb()[j].getBomBufferdImg(), bombScreenX, bombScreenY, 10, 10, this);
+                if (playerMP.getBullet()[j] != null) {
+                    if (!playerMP.getBullet()[j].stop) {
+                        int bombScreenX = playerMP.getBullet()[j].getPosiX() - player.getWorldX() + player.getScreenX();
+                        int bombScreenY = playerMP.getBullet()[j].getPosiY() - player.getWorldY() + player.getScreenY();
+                        g2d.drawImage(playerMP.getBullet()[j].getBulletImg(), bombScreenX, bombScreenY, 10, 10, this);
                     }
                 }
             }
 
-//            for (int j = 0; j < 1000; j++) {
-//                if (playerMP.getBomb()[j] != null) {
-//                    if (playerMP.getBomb()[j].stop == false) {
-//                        g2d.drawImage(playerMP.getBomb()[j].getBomBufferdImg(), playerMP.getBomb()[j].getPosiX(), playerMP.getBomb()[j].getPosiY(), this);
-//                    }
-//                }
-//            }
+            //Render the bullet all players
+
+            if (currentMap.equals("pvp")) {
+                for (PlayerMP playerMP : getMap().players) {
+                    for (int i = 0; i < 1000; i++) {
+                        if (playerMP.getBullet()[i] != null) {
+                            if (!playerMP.getBullet()[i].stop) {
+                                int bulletScreenX = playerMP.getBullet()[i].getPosiX() - player.getWorldX() + player.getScreenX();
+                                int bulletScreenY = playerMP.getBullet()[i].getPosiY() - player.getWorldY() + player.getScreenY();
+
+                                g2d.drawImage(playerMP.getBullet()[i].getBulletImg(), bulletScreenX, bulletScreenY, 10, 10, this);
+                            }
+                        }
+                    }
+                }
+            }
 
         }
+    }
+
+    public void sendTeleportPacket(String username, String map, int x, int y) {
+        Client.getGameClient().sendToServer(new Protocol().teleportPacket(username, map, x, y));
     }
 
     public void changeToLoadingScene() {
@@ -372,14 +388,12 @@ public class GameScene extends JPanel implements Runnable {
         currentMap = "maze";
     }
 
-    public void changeToLobby(){
+    public void changeToLobby(Map map) {
         player.setDefaultPosition();
 
         currentMap = "lobby";
 
-        mazeMap.removeAllPlayers();
-
-
+        map.removeAllPlayers();
     }
 
     public void registerNewPlayer(PlayerMP newPlayer) {
@@ -403,11 +417,14 @@ public class GameScene extends JPanel implements Runnable {
         }
     }
 
-    public void winMaze()
-    {
-        changeToLobby();
+    public void winMaze() {
+        changeToLobby(mazeMap);
 
         Client.getGameClient().sendToServer(new Protocol().winMazePacket(playerMP.getUsername()));
+    }
+
+    public void sendRespawnPacket() {
+        Client.getGameClient().sendToServer(new Protocol().respawnPacket(playerMP.getUsername()));
     }
 
     public void removePlayer(String username) {
@@ -480,6 +497,10 @@ public class GameScene extends JPanel implements Runnable {
         };
     }
 
+    public Map getLobbyMap() {
+        return map;
+    }
+
     public void setMap(Map map) {
         this.map = map;
     }
@@ -492,11 +513,11 @@ public class GameScene extends JPanel implements Runnable {
         this.collision = collision;
     }
 
-    public ChatPanel getChatPanel() {
+    public ChatPane getChatPanel() {
         return chatPanel;
     }
 
-    public void setChatPanel(ChatPanel chatPanel) {
+    public void setChatPanel(ChatPane chatPanel) {
         this.chatPanel = chatPanel;
     }
 
@@ -526,5 +547,21 @@ public class GameScene extends JPanel implements Runnable {
 
     public void setMazeMap(MazeMap mazeMap) {
         this.mazeMap = mazeMap;
+    }
+
+    public PvpMap getPvpMap() {
+        return pvpMap;
+    }
+
+    public void setPvpMap(PvpMap pvpMap) {
+        this.pvpMap = pvpMap;
+    }
+
+    public boolean isPlayerAlive() {
+        return isPlayerAlive;
+    }
+
+    public void setPlayerAlive(boolean isPlayerAlive) {
+        this.isPlayerAlive = isPlayerAlive;
     }
 }

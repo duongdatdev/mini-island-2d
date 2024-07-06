@@ -3,9 +3,9 @@ package network.entitiesNet;
 import main.GameScene;
 import network.client.Client;
 import network.client.Protocol;
-import objects.entities.Bomb;
+import objects.entities.Bullet;
 import objects.entities.Player;
-import panels.chat.DialogText;
+import panes.chat.DialogText;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,12 +19,12 @@ public class PlayerMP {
     private int x, y;
     private int id;
     private int direction;
-    private int lastDirection;
+    private int lastDirection = 1;
     private String username;
 
     //Bombs
-    private Bomb bomb[]=new Bomb[1000];
-    private int curBomb=0;
+    private Bullet bullet[] = new Bullet[1000];
+    private int curBullet = 0;
 
     private Socket clientSocket;
     private DataOutputStream writer;
@@ -34,6 +34,10 @@ public class PlayerMP {
 
     private DialogText dialogText;
 
+    private boolean isAlive = true;
+
+    private long lastShotTime;
+
     public PlayerMP(Player player) {
         this.player = player;
         this.x = player.getWorldX();
@@ -42,6 +46,8 @@ public class PlayerMP {
         writer = Client.getGameClient().getWriter();
 
         dialogText = new DialogText();
+
+        lastShotTime = System.currentTimeMillis();
 
         chatImageTimer = new Timer(2000, e -> clearChatImage());
         chatImageTimer.setRepeats(false);
@@ -56,6 +62,8 @@ public class PlayerMP {
         this.player = new Player(username, x, y, direction, id);
 
         dialogText = new DialogText();
+
+        lastShotTime = System.currentTimeMillis();
 
         chatImageTimer = new Timer(2000, e -> clearChatImage());
         chatImageTimer.setRepeats(false);
@@ -109,7 +117,7 @@ public class PlayerMP {
         }
     }
 
-    public void updateLocation(){
+    public void updateLocation() {
         x = player.getWorldX();
         y = player.getWorldY();
     }
@@ -149,24 +157,34 @@ public class PlayerMP {
 
     }
 
-    public void shot()
-    {
-        if (direction == 1 || direction == 2 || direction == 3 || direction == 4)
-            bomb[curBomb]=new Bomb(this.getX(),this.getY(),direction);
-        else
-            bomb[curBomb]=new Bomb(this.getX(),this.getY(),lastDirection);
+    public void shot() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastShotTime >= 300) { // 300 milliseconds have passed since the last shot
+            try {
+                if (GameScene.getInstance().getCurrentMap().equals("pvp")) {
+                    int bombDirection = direction != 0 ? direction : lastDirection;
+                    bullet[curBullet] = new Bullet(this.getX(), this.getY(), bombDirection, username);
+                    bullet[curBullet].startBombThread(true);
+                    curBullet++;
 
-        bomb[curBomb].startBombThread(true);
-
-        curBomb++;
+                    Client.getGameClient().sendToServer(new Protocol().ShotPacket(username));
+                }
+            } catch (Exception e) {
+                System.out.println("Out of bullets");
+            }
+            lastShotTime = currentTime; // Update the last shot time
+        }
     }
 
-    public void Shot()
-    {
-        bomb[curBomb]=new Bomb(this.getX(),this.getY(),lastDirection);
-
-        bomb[curBomb].startBombThread(false);
-        curBomb++;
+    public void Shot() {
+        try {
+            int bombDirection = direction != 0 ? direction : lastDirection;
+            bullet[curBullet] = new Bullet(this.getX(), this.getY(), bombDirection, username);
+            bullet[curBullet].startBombThread(false);
+            curBullet++;
+        } catch (Exception e) {
+            System.out.println("Out of bullets");
+        }
 
     }
 
@@ -177,6 +195,7 @@ public class PlayerMP {
             case "UP" -> direction = 2;
             case "LEFT" -> direction = 3;
             case "RIGHT" -> direction = 4;
+            case "STAND" -> direction = 0;
 
         }
         return direction;
@@ -198,9 +217,8 @@ public class PlayerMP {
         this.direction = direction;
     }
 
-    public Bomb[] getBomb()
-    {
-        return bomb;
+    public Bullet[] getBullet() {
+        return bullet;
     }
 
     public String getUsername() {
@@ -273,4 +291,19 @@ public class PlayerMP {
         this.dialogText = dialogText;
     }
 
+    public int getLastDirection() {
+        return lastDirection;
+    }
+
+    public void setLastDirection(int lastDirection) {
+        this.lastDirection = lastDirection;
+    }
+
+    public boolean isAlive() {
+        return isAlive;
+    }
+
+    public void setAlive(boolean isAlive) {
+        this.isAlive = isAlive;
+    }
 }

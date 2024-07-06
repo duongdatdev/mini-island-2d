@@ -2,12 +2,10 @@ package network.client;
 
 import main.GameScene;
 import network.entitiesNet.PlayerMP;
-import panels.auth.signIn.SignInModel;
 
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -58,7 +56,6 @@ public class ClientRecivingThread extends Thread {
             String sentence = "";
             try {
                 sentence = reader.readUTF();
-                System.out.println("Received message from server: " + sentence);
 
                 if (sentence.startsWith("ID")) {
                     int pos1 = sentence.indexOf(',');
@@ -89,8 +86,6 @@ public class ClientRecivingThread extends Thread {
                         if (gameScene.getCurrentMap().equals(map))
                             gameScene.registerNewPlayer(new PlayerMP(username, x, y, dir, id));
                     }
-//                if (id != clientPlayer.getID())d
-//                    gameScene.registerNewPlayer(new PlayerMP(username, x, y, dir, id));
 
                     System.out.println("New Client ID= " + id);
                     System.out.println("New Client Username= " + username);
@@ -109,6 +104,9 @@ public class ClientRecivingThread extends Thread {
                         if (player != null) {
                             player.setX(x);
                             player.setY(y);
+                            if (dir == 0) {
+                                player.setLastDirection(player.getDirection());
+                            }
                             player.setDirection(dir);
                         } else {
                             System.out.println("Player with username " + username + " not found in the map.");
@@ -120,10 +118,46 @@ public class ClientRecivingThread extends Thread {
                     String username = sentence.substring(4);
 
                     if (username.equals(clientPlayer.getUsername())) {
-                        gameScene.getPlayerMP().Shot();
+//                        gameScene.getPlayerMP().shot();
                     } else {
-                        gameScene.getPlayer(username).Shot();
+                        System.out.println("Player " + username + " shot");
+
+                        if (gameScene.getCurrentMap().equals("pvp")){
+                                gameScene.getPvpMap().getPlayer(username).Shot();
+                        }
                     }
+                } else if (sentence.startsWith("BulletCollision")) {
+                    String[] parts = sentence.split(",");
+
+                    String playerShot = parts[1];
+                    String playerHit = parts[2];
+
+                    if (playerHit.equals(clientPlayer.getUsername())) {
+                        int response = JOptionPane.showConfirmDialog(null, "Sorry, You are loss. Do you want to try again ?", "2D Multiplayer Game", JOptionPane.OK_CANCEL_OPTION);
+                        if (response == JOptionPane.OK_OPTION) {
+                            gameScene.setPlayerAlive(true);
+                            gameScene.getPlayer().setWorldX(1000);
+                            gameScene.getPlayer().setWorldY(1000);
+
+                            gameScene.getPlayerMP().setAlive(true);
+                            gameScene.sendRespawnPacket();
+                            gameScene.getPvpMap().removeAllPlayers();
+                            gameScene.sendTeleportPacket(gameScene.getPlayerMP().getUsername(), "pvp", gameScene.getPlayer().getWorldX(), gameScene.getPlayer().getWorldY());
+                        } else {
+                            gameScene.setPlayerAlive(true);
+                            gameScene.getPlayer().setDefaultPosition();
+                            gameScene.sendTeleportPacket(gameScene.getPlayerMP().getUsername(), "lobby", gameScene.getPlayer().getWorldX(), gameScene.getPlayer().getWorldY());
+                            gameScene.changeToLobby(gameScene.getPvpMap());
+                        }
+                    } else {
+                        for (PlayerMP player : gameScene.getMap().players) {
+                            if (player.getUsername().equals(playerHit)) {
+                                gameScene.getMap().removePlayer(playerHit);
+                                break;
+                            }
+                        }
+                    }
+
                 } else if (sentence.startsWith("Remove")) {
                     int id = Integer.parseInt(sentence.substring(6));
 
@@ -159,6 +193,23 @@ public class ClientRecivingThread extends Thread {
 
                         gameScene.getMap().removePlayer(username);
 
+                    }
+                } else if (sentence.startsWith("TeleportMap")) {
+
+                    String[] parts = sentence.split(",");
+                    String username = parts[1];
+                    String map = parts[2];
+                    int x = Integer.parseInt(parts[3]);
+                    int y = Integer.parseInt(parts[4]);
+
+                    if (username.equals(clientPlayer.getUsername())) {
+                        gameScene.getPlayerMP().setX(x);
+                        gameScene.getPlayerMP().setY(y);
+
+                        gameScene.getLobbyMap().getMazeNPC().setWorldX(2092);
+                        gameScene.getLobbyMap().getMazeNPC().setWorldY(1075);
+
+                        gameScene.changeToLobby(gameScene.getMazeMap());
                     }
 
                 } else if (sentence.startsWith("Chat")) {
@@ -203,6 +254,9 @@ public class ClientRecivingThread extends Thread {
 
                         gameScene.getPlayerMP().setX(50);
                         gameScene.getPlayerMP().setY(50);
+
+                        gameScene.getLobbyMap().getMazeNPC().setWorldX(50);
+                        gameScene.getLobbyMap().getMazeNPC().setWorldY(50);
 
                         Client.getGameClient().sendToServer(new Protocol().teleportPacket(gameScene.getPlayerMP().getUsername(), gameScene.currentMap, gameScene.getPlayerMP().getX(), gameScene.getPlayerMP().getY()));
                     });

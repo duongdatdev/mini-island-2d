@@ -6,11 +6,16 @@ import objects.GameObject;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * Entity class is the parent class for all entities in the game.
+ * It contains the basic properties of an entity.
+ */
+
 public abstract class Entity extends GameObject {
     protected int worldX;
     protected int worldY;
     protected int speed;
-    public BufferedImage[][] upImages, downImages, leftImages, rightImages;
+    public BufferedImage[] upImages, downImages, leftImages, rightImages;
     public String direction = "STAND";
     protected Rectangle hitBox;
     protected boolean collision = false;

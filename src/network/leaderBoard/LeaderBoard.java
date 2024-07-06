@@ -2,20 +2,22 @@ package network.leaderBoard;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.*;
 
 public class LeaderBoard extends JScrollPane {
-    private DefaultListModel<Player> leaderboardModel;
-    private JList<Player> leaderboardList;
+    private DefaultListModel<PlayerLB> leaderboardModel;
+    private JList<PlayerLB> leaderboardList;
 
     public LeaderBoard() {
         setSize(300, 400);
+        setBorder(BorderFactory.createEmptyBorder());
 
         leaderboardModel = new DefaultListModel<>();
         leaderboardList = new JList<>(leaderboardModel);
         leaderboardList.setCellRenderer(new PlayerCellRenderer());
 
-        add("Top",10);
+        add("Top", 0);
+
+        leaderboardList.setBackground(new Color(205,184,145));
 
         setViewportView(leaderboardList);
 
@@ -25,7 +27,7 @@ public class LeaderBoard extends JScrollPane {
     }
 
     public void add(String username, int score) {
-        Player player1 = new Player(username, score, new ImageIcon(this.getClass().getResource("/Login/Text_Field.png")));
+        PlayerLB player1 = new PlayerLB(username, score, new ImageIcon(this.getClass().getResource("/LeaderBoard/playerLB.png")));
         leaderboardModel.addElement(player1);
     }
 
@@ -42,7 +44,6 @@ public class LeaderBoard extends JScrollPane {
             frame.add(example);
 
             frame.setSize(300, 400);
-
 
 
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

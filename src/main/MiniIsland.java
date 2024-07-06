@@ -4,18 +4,17 @@ import network.client.Client;
 import network.client.ClientRecivingThread;
 import network.client.Protocol;
 import network.entitiesNet.PlayerMP;
-import panels.auth.signIn.SignInControl;
-import panels.auth.signIn.SignInModel;
-import panels.auth.signIn.SignInPanel;
-import panels.auth.signUp.SignUpControl;
-import panels.auth.signUp.SignUpModel;
-import panels.auth.signUp.SignUpPanel;
+import panes.auth.signIn.SignInControl;
+import panes.auth.signIn.SignInModel;
+import panes.auth.signIn.SignInPane;
+import panes.auth.signUp.SignUpControl;
+import panes.auth.signUp.SignUpModel;
+import panes.auth.signUp.SignUpPane;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -29,27 +28,27 @@ public class MiniIsland extends JFrame {
     DataOutputStream writer = null;
 
     //Login
-    private SignInPanel signInPanel;
+    private SignInPane signInPane;
     private SignInControl signInControl;
     private SignInModel signInModel;
 
     //Register
     private SignUpModel signUpModel;
-    private SignUpPanel signUpPanel;
+    private SignUpPane signUpPane;
     private SignUpControl signUpControl;
 
     private Client client;
     private PlayerMP clientPlayer;
 
     public MiniIsland() {
-        signInPanel = new SignInPanel();
+        signInPane = new SignInPane();
         signInModel = SignInModel.getInstance();
-        signInControl = new SignInControl(this, signInModel, signInPanel);
+        signInControl = new SignInControl(this, signInModel, signInPane);
 
-        signUpPanel = new SignUpPanel();
+        signUpPane = new SignUpPane();
         signUpModel = new SignUpModel();
 
-        signUpControl = new SignUpControl(this, signUpModel, signUpPanel);
+        signUpControl = new SignUpControl(this, signUpModel, signUpPane);
 
         client = Client.getGameClient();
 
@@ -71,7 +70,7 @@ public class MiniIsland extends JFrame {
 
     public void startGame() {
 
-        gameScene = new GameScene(true);
+        gameScene = GameScene.getInstance();
         this.add(gameScene, "GamePanel");
 
         actionRegister();
@@ -159,8 +158,8 @@ public class MiniIsland extends JFrame {
 //        this.setResizable(false);
         this.setLayout(cardLayout);
 
-        this.add(signInPanel, "SignInPanel");
-        this.add(signUpPanel, "SignUpPanel");
+        this.add(signInPane, "SignInPanel");
+        this.add(signUpPane, "SignUpPanel");
         this.setVisible(true);
 
     }

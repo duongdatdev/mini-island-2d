@@ -1,6 +1,7 @@
 package objects.entities;
 
 import imageRender.ImageHandler;
+import imageRender.ImageLoader;
 import input.KeyHandler;
 import main.GameScene;
 import maps.TileType;
@@ -15,7 +16,7 @@ public class Player extends Entity {
     private int id;
     private int spriteIndex = 0;
     private int countFrames = 0;
-    private BufferedImage[][] standingImages;
+    private BufferedImage[] standingImages;
     public GameScene gameScene;
     private String username;
 
@@ -51,11 +52,17 @@ public class Player extends Entity {
     }
 
     public void loadAssets() {
-        upImages = ImageHandler.loadAssets("/player/Character_Up.png", 32, 32);
-        downImages = ImageHandler.loadAssets("/player/Character_Down.png", 32, 32);
-        leftImages = ImageHandler.loadAssets("/player/Character_Left.png", 32, 32);
-        rightImages = ImageHandler.loadAssets("/player/Character_Right.png", 32, 32);
-        standingImages = ImageHandler.loadAssets("/player/Character_Stand.png", 32, 32);
+        upImages = ImageLoader.getInstance().upImages[0];
+        downImages = ImageLoader.getInstance().downImages[0];
+        leftImages = ImageLoader.getInstance().leftImages[0];
+        rightImages = ImageLoader.getInstance().rightImages[0];
+    }
+
+    public void changeSprite(int spriteIndex){
+        upImages = ImageLoader.getInstance().upImages[spriteIndex];
+        downImages = ImageLoader.getInstance().downImages[spriteIndex];
+        leftImages = ImageLoader.getInstance().leftImages[spriteIndex];
+        rightImages = ImageLoader.getInstance().rightImages[spriteIndex];
     }
 
     public void setDefaultPosition() {
@@ -116,14 +123,13 @@ public class Player extends Entity {
                             worldY = finalFutureY;
                         }
                     }
-                } else {
-                    direction = "STAND";
+//                } else {
+//                    direction = "STAND";
                 }
             });
 
 
         } else if (isSpace()) {
-            System.out.println("Player shot");
             gameScene.getPlayerMP().shot();
         } else {
             if (count == 1) {
@@ -161,72 +167,72 @@ public class Player extends Entity {
         switch (direction) {
             case "UP":
                 if (spriteIndex == 0) {
-                    playerImage = upImages[state][0];
+                    playerImage = upImages[0];
                 }
                 if (spriteIndex == 1) {
-                    playerImage = upImages[state][1];
+                    playerImage = upImages[1];
                 }
                 if (spriteIndex == 2) {
-                    playerImage = upImages[state][2];
+                    playerImage = upImages[2];
                 }
                 if (spriteIndex == 3) {
-                    playerImage = upImages[state][3];
+                    playerImage = upImages[3];
                 }
                 break;
             case "DOWN":
                 if (spriteIndex == 0) {
-                    playerImage = downImages[state][0];
+                    playerImage = downImages[0];
                 }
                 if (spriteIndex == 1) {
-                    playerImage = downImages[state][1];
+                    playerImage = downImages[1];
                 }
                 if (spriteIndex == 2) {
-                    playerImage = downImages[state][2];
+                    playerImage = downImages[2];
                 }
                 if (spriteIndex == 3) {
-                    playerImage = downImages[state][3];
+                    playerImage = downImages[3];
                 }
                 break;
             case "LEFT":
                 if (spriteIndex == 0) {
-                    playerImage = leftImages[state][0];
+                    playerImage = leftImages[0];
                 }
                 if (spriteIndex == 1) {
-                    playerImage = leftImages[state][1];
+                    playerImage = leftImages[1];
                 }
                 if (spriteIndex == 2) {
-                    playerImage = leftImages[state][2];
+                    playerImage = leftImages[2];
                 }
                 if (spriteIndex == 3) {
-                    playerImage = leftImages[state][3];
+                    playerImage = leftImages[3];
                 }
                 break;
             case "RIGHT":
                 if (spriteIndex == 0) {
-                    playerImage = rightImages[state][0];
+                    playerImage = rightImages[0];
                 }
                 if (spriteIndex == 1) {
-                    playerImage = rightImages[state][1];
+                    playerImage = rightImages[1];
                 }
                 if (spriteIndex == 2) {
-                    playerImage = rightImages[state][2];
+                    playerImage = rightImages[2];
                 }
                 if (spriteIndex == 3) {
-                    playerImage = rightImages[state][3];
+                    playerImage = rightImages[3];
                 }
                 break;
             case "STAND":
                 if (spriteIndex == 0) {
-                    playerImage = standingImages[state][0];
+                    playerImage = standingImages[0];
                 }
                 if (spriteIndex == 1) {
-                    playerImage = standingImages[state][1];
+                    playerImage = standingImages[1];
                 }
                 if (spriteIndex == 2) {
-                    playerImage = standingImages[state][2];
+                    playerImage = standingImages[2];
                 }
                 if (spriteIndex == 3) {
-                    playerImage = standingImages[state][3];
+                    playerImage = standingImages[3];
                 }
                 break;
         }
@@ -263,6 +269,14 @@ public class Player extends Entity {
 
     public void setSpeed(int speed) {
         this.speed = speed;
+    }
+
+    public String getLastDirection() {
+        return lastDirection;
+    }
+
+    public void setLastDirection(String lastDirection) {
+        this.lastDirection = lastDirection;
     }
 
     @Override

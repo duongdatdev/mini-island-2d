@@ -67,7 +67,7 @@ public class Map {
     }
 
     public void loadMap(String mapPath) {
-        tileSet = ImageHandler.loadAssets2(mapPath, width, height);
+        tileSet = ImageHandler.loadAssets(mapPath, width, height);
         tiles = new Tile[tileSet.length];
         for (int i = 0; i < tileSet.length; i++) {
 
@@ -142,7 +142,19 @@ public class Map {
                             && worldY < gameScene.getPlayer().getWorldY() + gameScene.getPlayer().getScreenY() + tileSize * 2) {
 
                         g2d.drawImage(playerMP.getPlayer().currentSprite(), screenX, screenY, tileSize, tileSize, null);
-                        g2d.drawString(playerMP.getUsername(), screenX, screenY - 10);
+
+                        // Calculate the center of the player's sprite
+                        int centerX = screenX + tileSize / 2;
+
+                        // Get the width of the username string
+                        int stringWidth = g2d.getFontMetrics().stringWidth(playerMP.getUsername());
+
+                        // Adjust the x-coordinate of the username to center it
+                        int usernameX = centerX - stringWidth / 2;
+
+                        // Draw the username at the calculated position
+                        g2d.setFont(new Font("Arial", Font.BOLD, 20));
+                        g2d.drawString(playerMP.getUsername(), usernameX, screenY);
 
                         BufferedImage chatImage = playerMP.getChatImage();
                         if (chatImage != null) {

@@ -27,6 +27,7 @@ public class Collision {
 
         int tileNum1, tileNum2;
 
+        System.out.println(entity.getDirection());
         switch (entity.getDirection()) {
             case "UP":
                 entityTopRow = (entityTopWorldY - entity.getSpeed()) / gameScene.getTileSize();
@@ -50,7 +51,6 @@ public class Collision {
                 entityRightCol = (entityRightWorldX + entity.getSpeed()) / gameScene.getTileSize();
                 tileNum1 = gameScene.getMap().getMapTileNum()[entityRightCol][entityTopRow];
                 tileNum2 = gameScene.getMap().getMapTileNum()[entityRightCol][entityBottomRow];
-
                 break;
             default:
                 throw new IllegalArgumentException("Invalid direction: " + entity.getDirection());
@@ -63,12 +63,14 @@ public class Collision {
     private void handleCollision(Entity entity, int tileNum1, int tileNum2) {
         if (checkTile(tileNum1, tileNum2, TileType.Wall)) {
             entity.setCollision(true);
-            entity.setFlagUpdate(true);
+            entity.setFlagUpdate(false);
         } else if (checkTile(tileNum1, tileNum2, TileType.Water)) {
             handleCollisionWater(entity);
             entity.setFlagUpdate(false);
         } else if (checkTile(tileNum1, tileNum2, TileType.FinishLine)) {
             gameScene.winMaze();
+        } else if (checkTile(tileNum1, tileNum2, TileType.Hole)) {
+//            gameScene.loseMaze();
         }
     }
 
@@ -80,8 +82,7 @@ public class Collision {
      * Handle collision with water
      */
     private void handleCollisionWater(Entity entity) {
-        entity.setWorldX(1000);
-        entity.setWorldY(1000);
+        gameScene.getPlayer().setDefaultPosition();
 
         gameScene.getPlayerMP().updatePlayerInServer();
     }
